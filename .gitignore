@@ -5,6 +5,11 @@
 /.pnp
 .pnp.js
 
+.env
+/server/.env
+
+/server/db
+
 # testing
 /coverage
 
