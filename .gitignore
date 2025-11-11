@@ -1,22 +1,18 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
-/node_modules
+**/node_modules
 /.pnp
 .pnp.js
 
 .env
-/server/.env
 /backend/.env
 
-/server/db
 /backend/db
 
 # testing
 /coverage
 
 # production
-/build
+**/build
 
 # misc
 .DS_Store
@@ -28,3 +24,6 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+*storybook.log
+storybook-static
