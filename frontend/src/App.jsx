@@ -3,7 +3,9 @@ import "./App.css";
 function App() {
   return (
     <>
-      <div>Hello, World</div>
+      <div>
+        <h1>Event Scout</h1>
+      </div>
     </>
   );
 }
