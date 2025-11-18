@@ -7,8 +7,8 @@ import { initializeDatabase } from "./config/database.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const allowed = { origin: "http://localhost:3000", credentials: true };
+const PORT = process.env.PORT || 5000;
+const allowed = { origin: process.env.CLIENT_URL || "http://localhost:3000", credentials: true };
 
 // Middleware
 app.use(express.json());
