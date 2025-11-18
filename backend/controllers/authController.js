@@ -1,32 +1,11 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import sqlite3 from "sqlite3";
+import db from "../config/database.js";
 
-dotenv.config();
+const JWT_SECRET = process.env.JWT_SECRET || "rea11y un!que key that is 5uper dup3r s3cret";
 
-const db = new sqlite3.Database("./server/db/users.db");
-db.run(
-  "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, email TEXT UNIQUE, password TEXT)"
-);
-const JWT_SECRET =
-  process.env.JWT_SECRET || "rea11y un!que key that is 5uper dup3r s3cret";
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(express.json());
-const allowed = { origin: "http://localhost:3000", credentials: true };
-app.use(cors(allowed));
-
-app.get("/", (req, res) => {
-  res.send("Hello, World!");
-});
-
-// API endpoint for user signup
-app.post("/api/register", (req, res) => {
+// Register a new user
+export const register = (req, res) => {
   const { email, pass } = req.body;
   const hashedPass = bcrypt.hashSync(pass, 10);
   db.run(
@@ -39,10 +18,10 @@ app.post("/api/register", (req, res) => {
       res.status(200).json({ message: "User created" });
     }
   );
-});
+};
 
-// API endpoint for user signin
-app.post("/api/login", (req, res) => {
+// Login user
+export const login = (req, res) => {
   const { email, pass } = req.body;
   db.get("SELECT * FROM users WHERE email = ?", [email], (err, user) => {
     if (err || !user) {
@@ -56,8 +35,5 @@ app.post("/api/login", (req, res) => {
     });
     res.status(200).json({ token });
   });
-});
+};
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});

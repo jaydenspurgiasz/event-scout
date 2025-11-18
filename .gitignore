@@ -7,8 +7,10 @@
 
 .env
 /server/.env
+/backend/.env
 
 /server/db
+/backend/db
 
 # testing
 /coverage
