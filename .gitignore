@@ -6,10 +6,8 @@
 .pnp.js
 
 .env
-/server/.env
 /backend/.env
 
-/server/db
 /backend/db
 
 # testing
@@ -28,3 +26,6 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+*storybook.log
+storybook-static
