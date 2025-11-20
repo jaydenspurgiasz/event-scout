@@ -44,35 +44,35 @@ beforeAll((done) => {
 
 describe("saveMessage", () => {
   it("should save a message", (done) => {
-    saveMessage(1, 1, "Test message", mockDb, (err, messageId) => {
+    saveMessage(1, 1, "Test message", (err, messageId) => {
       expect(err).toBeNull();
       expect(messageId).toBeDefined();
       done();
-    });
+    }, mockDb);
   });
 
   it("should return error if message is empty", (done) => {
-    saveMessage(1, 1, "", mockDb, (err, messageId) => {
+    saveMessage(1, 1, "", (err, messageId) => {
       expect(err).toBeDefined();
       done();
-    });
+    }, mockDb);
   });
 });
 
 describe("getMessages", () => {
   it("should get messages for an event", (done) => {
-    getMessages(1, mockDb, (err, messages) => {
+    getMessages(1, (err, messages) => {
       expect(err).toBeNull();
       expect(messages).toBeDefined();
       done();
-    });
+    }, mockDb);
   });
 
   it("should return empty array if no messages", (done) => {
-    getMessages(999, mockDb, (err, messages) => {
+    getMessages(999, (err, messages) => {
       expect(err).toBeNull();
       expect(messages.length).toBe(0);
       done();
-    });
+    }, mockDb);
   });
 });
