@@ -1,30 +1,30 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import db from "../config/database.js";
+import { createUser, getUserByEmail } from "../models/db.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "rea11y un!que key that is 5uper dup3r s3cret";
 
 // Register a new user
-export const register = (req, res) => {
-  const { email, pass } = req.body;
+export const register = async (req, res) => {
+  const { email, pass, firstName, lastName } = req.body;
   const hashedPass = bcrypt.hashSync(pass, 10);
-  db.run(
-    "INSERT INTO users (email, password) VALUES (?, ?)",
-    [email, hashedPass],
-    (err) => {
-      if (err) {
-        return res.status(400).json({ message: "Email already in use" });
-      }
-      res.status(200).json({ message: "User created" });
-    }
-  );
+  
+  try {
+    await createUser(email, hashedPass, firstName, lastName);
+    res.status(200).json({ message: "User created" });
+  } catch (err) {
+    res.status(400).json({ message: "Email already in use" });
+  }
 };
 
 // Login user
-export const login = (req, res) => {
+export const login = async (req, res) => {
   const { email, pass } = req.body;
-  db.get("SELECT * FROM users WHERE email = ?", [email], (err, user) => {
-    if (err || !user) {
+  
+  try {
+    const user = await getUserByEmail(email);
+    
+    if (!user) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
     if (!bcrypt.compareSync(pass, user.password)) {
@@ -34,6 +34,8 @@ export const login = (req, res) => {
       expiresIn: "30m",
     });
     res.status(200).json({ token });
-  });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
