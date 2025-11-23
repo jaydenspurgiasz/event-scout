@@ -1,27 +1,31 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import authRoutes from "./routes/authRoutes.js";
+import apiRoutes from "./routes/apiRoutes.js";
 import { initializeDatabase } from "./models/db.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 const allowed = { origin: process.env.CLIENT_URL || "http://localhost:3000", credentials: true };
 
 // Middleware
 app.use(express.json());
 app.use(cors(allowed));
+app.use(cookieParser());
+app.use(express.json());
+
 
 // Routes
 app.get("/", (req, res) => {
   res.send("Hello, World!");
 });
 
-app.use("/api", authRoutes);
+app.use("/api", apiRoutes);
 
-const startServer = async() => {
+const startServer = async () => {
   try {
     await initializeDatabase();
     app.listen(PORT, () => {
