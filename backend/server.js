@@ -14,12 +14,12 @@ dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 3000;
-const allowed = { origin: "http://localhost:3000", credentials: true };
+const allowed = { origin: ["http://localhost:3000", "http://localhost:3001"], credentials: true };
 
 // Initialize Socket.IO
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "http://localhost:3001"],
     methods: ["GET", "POST"],
     credentials: true
   }
