@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import formatDate from "../utils/formatDate";
 import EventDetail from "./EventDetail";
 import { eventsAPI } from '../api';
 
-export default function EventsList() {
+export default function EventsList({ searchQuery = '' }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -38,6 +38,23 @@ export default function EventsList() {
     loadEvents();
   };
 
+  // Search bar - used for filtering for events
+  const filteredEvents = useMemo(() => {
+    const list = Array.isArray(events) ? events : [];
+    const q = (searchQuery || '').trim().toLowerCase();
+    if (!q) return list;
+    return list.filter((evt) => {
+      const title = (evt.title || '').toLowerCase();
+      const location = (evt.location || '').toLowerCase();
+      const description = (evt.description || '').toLowerCase();
+      return (
+        title.includes(q) ||
+        location.includes(q) ||
+        description.includes(q)
+      );
+    });
+  }, [events, searchQuery]);
+
   if (selectedEvent) {
     return (
       <EventDetail 
@@ -48,22 +65,21 @@ export default function EventsList() {
     );
   }
 
-  if (!events) {
-    events = [];
-  }
-
   return (
     <div className="events-page">
-      <h2>Discover</h2>
+      <h2>Discover Events</h2>
       <button onClick={handleRefresh} disabled={loading}>
         Refresh
       </button>
 
       {loading && <p>Loading events...</p>}
-      {!loading && !error && events.length === 0 && <p>No events yet.</p>}
+      {!loading && !error && (Array.isArray(events) ? events.length === 0 : true) && <p>No events yet.</p>}
+      {!loading && !error && events.length > 0 && filteredEvents.length === 0 && (
+        <p>No events match your search.</p>
+      )}
 
       <div className="events-list">
-        {events.map((event) => {
+        {filteredEvents.map((event) => {
           return (
             <div
               key={event.id}
