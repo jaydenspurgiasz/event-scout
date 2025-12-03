@@ -3,11 +3,12 @@ import formatDate from "../utils/formatDate";
 import EventDetail from "./EventDetail";
 import { eventsAPI } from '../api';
 
-export default function EventsList({ searchQuery = '' }) {
+export default function EventsList() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     loadEvents();
@@ -38,7 +39,6 @@ export default function EventsList({ searchQuery = '' }) {
     loadEvents();
   };
 
-  // Search bar - used for filtering for events
   const filteredEvents = useMemo(() => {
     const list = Array.isArray(events) ? events : [];
     const q = (searchQuery || '').trim().toLowerCase();
@@ -68,12 +68,31 @@ export default function EventsList({ searchQuery = '' }) {
   return (
     <div className="events-page">
       <h2>Discover Events</h2>
+      <div className="search-container" style={{ display: 'flex', justifyContent: 'center' }}>
+        <input
+          type="text"
+          placeholder="Search events by title, location, or description"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{
+            width: '100%',
+            maxWidth: 600,
+            margin: '12px 16px 16px',
+            padding: '10px 12px',
+            borderRadius: 8,
+            border: '1px solid #ccc',
+            fontSize: 16,
+          }}
+        />
+      </div>
+
       <button onClick={handleRefresh} disabled={loading}>
         Refresh
       </button>
 
       {loading && <p>Loading events...</p>}
-      {!loading && !error && (Array.isArray(events) ? events.length === 0 : true) && <p>No events yet.</p>}
+      {error && <p className="error-text">Error: {error}</p>}
+      {!loading && !error && events.length === 0 && <p>No events yet.</p>}
       {!loading && !error && events.length > 0 && filteredEvents.length === 0 && (
         <p>No events match your search.</p>
       )}
