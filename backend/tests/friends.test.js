@@ -15,7 +15,7 @@ const {
   rejectFriendRequest,
   getFriends,
   getFriendRequests,
-  removeFriend
+  deleteFriend
 } = await import('../models/db.js');
 
 beforeEach(async () => {
@@ -36,9 +36,10 @@ describe('Friends System', () => {
     user3 = await createUser(`user3_${timestamp}@test.com`, 'pass', 'User', 'Three');
   });
 
+  // Send a friend request and verify it appears in pending requests
   test('Send Friend Request', async () => {
     await sendFriendRequest(user1, user2);
-    
+
     const requests = await getFriendRequests(user2);
     expect(Array.isArray(requests)).toBe(true);
     expect(requests.length).toBe(1);
@@ -46,6 +47,7 @@ describe('Friends System', () => {
     expect(requests[0].status).toBe('pending');
   });
 
+  // Accept a friend request and verify both users are friends
   test('Accept Friend Request', async () => {
     await sendFriendRequest(user1, user2);
     await acceptFriendRequest(user2, user1);
@@ -62,6 +64,7 @@ describe('Friends System', () => {
     expect(friends2[0].id).toBe(user1);
   });
 
+  // Reject a friend request and verify it's removed from pending
   test('Reject Friend Request', async () => {
     await sendFriendRequest(user1, user2);
     await rejectFriendRequest(user2, user1);
@@ -70,6 +73,7 @@ describe('Friends System', () => {
     expect(requests.length).toBe(0);
   });
 
+  // Send mutual friend requests and verify auto-acceptance
   test('Mutual Request Auto-Accept', async () => {
     await sendFriendRequest(user1, user2);
     await sendFriendRequest(user2, user1);
@@ -83,11 +87,12 @@ describe('Friends System', () => {
     expect(friends2[0].id).toBe(user1);
   });
 
+  // Remove a friend and verify both sides are updated
   test('Remove Friend', async () => {
     await sendFriendRequest(user1, user2);
     await acceptFriendRequest(user2, user1);
-    
-    await removeFriend(user1, user2);
+
+    await deleteFriend(user1, user2);
 
     const friends1 = await getFriends(user1);
     const friends2 = await getFriends(user2);
@@ -96,6 +101,7 @@ describe('Friends System', () => {
     expect(friends2.length).toBe(0);
   });
 
+  // Verify multiple pending requests are tracked correctly
   test('Get Pending Requests', async () => {
     await sendFriendRequest(user1, user2);
     await sendFriendRequest(user3, user2);

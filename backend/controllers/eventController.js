@@ -1,0 +1,54 @@
+import { createEvent, getPublicEvents, getAllEvents, getEventById, getEventsByTitle } from "../models/db";
+
+
+export const addEvent = async (req, res) => {
+    const { id } = req.user;
+    const { title, description, date, location, priv } = req.body;
+
+    try {
+        const event = await createEvent(title, description, date, location, priv, id);
+        res.status(201).json(event);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+export const searchEvents = async (req, res) => {
+    if (req.user.id === null) {
+        try {
+            const events = await getPublicEvents();
+            res.status(200).json(events);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    } else {
+        try {
+            const events = await getAllEvents(req.user.id);
+            res.status(200).json(events);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    }
+};
+
+export const searchEventById = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const event = await getEventById(id, req.user.id);
+        res.status(200).json(event);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+export const searchEventsByTitle = async (req, res) => {
+    const { title } = req.query;
+
+    try {
+        const events = await getEventsByTitle(title, req.user.id);
+        res.status(200).json(events);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};

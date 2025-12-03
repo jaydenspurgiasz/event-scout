@@ -15,12 +15,14 @@ const allowed = { origin: process.env.CLIENT_URL || "http://localhost:3000", cre
 app.use(express.json());
 app.use(cors(allowed));
 app.use(cookieParser());
-app.use(express.json());
-
 
 // Routes
 app.get("/", (req, res) => {
   res.send("Hello, World!");
+});
+
+app.get("/health", (req, res) => {
+  res.send("Server is running");
 });
 
 app.use("/api", apiRoutes);
