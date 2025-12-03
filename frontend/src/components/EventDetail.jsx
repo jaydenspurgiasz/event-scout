@@ -1,22 +1,118 @@
-export default function EventDetail({ event, onBack }) {
+import { useEffect, useState } from 'react';
+import formatDate from "../utils/formatDate";
+import { eventsAPI } from '../api';
+import { useAuth } from '../contexts/AuthContext';
+
+export default function EventDetail({ event, onBack, onEventsRefresh }) {
+  const { user } = useAuth();
+  const [participants, setParticipants] = useState([]);
+  const [loadingParticipants, setLoadingParticipants] = useState(false);
+  const [participantsError, setParticipantsError] = useState(null);
+  const [rsvpLoading, setRsvpLoading] = useState(false);
+
+  useEffect(() => {
+    if (!event) return;
+
+    async function loadParticipants() {
+      setParticipants([]);
+      setParticipantsError(null);
+      setLoadingParticipants(true);
+      try {
+        const data = await eventsAPI.getParticipants(event.id);
+        setParticipants(data);
+      } catch (err) {
+        console.log('error loading participants:', err);
+        setParticipantsError(err.message);
+      }
+      setLoadingParticipants(false);
+    }
+
+    loadParticipants();
+  }, [event]);
+
+  const handleRsvp = async () => {
+    if (!event) return;
+
+    let alreadyGoing = false;
+    for (let i = 0; i < participants.length; i++) {
+      if (participants[i].id === user?.id) {
+        alreadyGoing = true;
+        break;
+      }
+    }
+
+    setRsvpLoading(true);
+    try {
+      if (alreadyGoing) {
+        await eventsAPI.unrsvp(event.id);
+      } else {
+        await eventsAPI.rsvp(event.id);
+      }
+      const newParticipants = await eventsAPI.getParticipants(event.id);
+      setParticipants(newParticipants);
+      if (onEventsRefresh) {
+        await onEventsRefresh();
+      }
+    } catch (err) {
+      console.log('rsvp error:', err);
+      setParticipantsError(err.message);
+    }
+    setRsvpLoading(false);
+  };
+
+  if (!event) {
+    return null;
+  }
+
+  if (!participants) {
+    participants = [];
+  }
+
+  let isAttending = false;
+  if (user) {
+    for (let i = 0; i < participants.length; i++) {
+      if (participants[i].id === user.id) {
+        isAttending = true;
+        break;
+      }
+    }
+  }
+
   return (
     <div className="event-detail">
       <button className="back-button" onClick={onBack}>
         ← Back
       </button>
       <div className="event-detail-card">
-        <h2>{event.name}</h2>
-        <p><strong>Date:</strong> {event.date}</p>
-        <p><strong>Location:</strong> {event.location}</p>
+        <h2>{event.title}</h2>
+        <p><strong>Date:</strong> {formatDate(event.date)}</p>
+        <p><strong>Location:</strong> {event.location || 'Location TBD'}</p>
+        <p><strong>Privacy:</strong> {event.private ? 'Private' : 'Public'}</p>
+        {event.description && (
+          <p><strong>About:</strong> {event.description}</p>
+        )}
+
+        <button
+          onClick={handleRsvp}
+          disabled={rsvpLoading || loadingParticipants}
+        >
+          {rsvpLoading ? 'Saving...' : isAttending ? 'Leave Event' : 'Join Event'}
+        </button>
+
         <div className="attendees-section">
-          <h3>Who's Going ({event.attendees.length})</h3>
-          <ul className="attendees-list">
-            {event.attendees.map((attendee, index) => (
-              <li key={index}>
-                {attendee}
-              </li>
-            ))}
-          </ul>
+          <h3>Who's Going ({participants.length})</h3>
+          {loadingParticipants && <p>Loading...</p>}
+          {participantsError && <p>Error: {participantsError}</p>}
+          {!loadingParticipants && !participantsError && participants.length === 0 && (
+            <p>No one has RSVPed yet.</p>
+          )}
+          {!loadingParticipants && !participantsError && participants.length > 0 && (
+            <ul>
+              {participants.map((p) => (
+                <li key={p.id}>{p.first_name || p.email}</li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>

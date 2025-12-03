@@ -12,33 +12,9 @@ import Following from './components/Following';
 import { SettingsMenu, ChangeEmail, ChangePassword } from './components/Settings';
 import { ChatList, ChatRoom } from './components/Chat';
 import HomePage from './pages/HomePage';
+import PublicRoute from './components/PublicRoute';
 import ProtectedRoute from './components/ProtectedRoute';
-
-function LoadingScreen() {
-  return (
-    <div className="container">
-      <div className="card">
-        <div className="header">
-          <h2 className="title">Loading...</h2>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PublicRoute({ children }) {
-  const { isAuthenticated, loading } = useAuth();
-
-  if (loading) {
-    return <LoadingScreen />;
-  }
-
-  if (isAuthenticated) {
-    return <Navigate to="/home" replace />;
-  }
-
-  return children;
-}
+import LoadingScreen from './components/LoadingScreen';
 
 function App() {
   const { loading } = useAuth();
