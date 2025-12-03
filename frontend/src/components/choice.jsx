@@ -1,4 +1,8 @@
-export default function Choice({ setView }) {
+import { useNavigate } from 'react-router-dom';
+
+export default function Choice() {
+    const navigate = useNavigate();
+    
     return (
       <div className="container">
         <div className="card">
@@ -9,17 +13,11 @@ export default function Choice({ setView }) {
             </div>
           </div>
           <div className="button-group">
-            <button onClick={() => setView("login")} className="button-primary">
+            <button onClick={() => navigate("/login")} className="button-primary">
               Login
             </button>
-            <button onClick={() => setView("register")} className="button-secondary">
+            <button onClick={() => navigate("/register")} className="button-secondary">
               Register
-            </button>
-            <button onClick={() => setView("profile")} className="button-secondary">
-              Test Profile
-            </button>
-            <button onClick={() => setView("chat-list")} className="button-secondary">
-              Test Chat
             </button>
           </div>
         </div>

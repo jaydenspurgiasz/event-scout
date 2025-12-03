@@ -1,17 +1,32 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
-export default function Login({setView, onLogin}) {
+export default function Login() {
+    const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+    const { login } = useAuth();
 
-    const handleSubmit = () => {
-        onLogin(email, password);
+    const handleSubmit = async () => {
+        setError("");
+        setLoading(true);
+        const result = await login(email, password);
+        setLoading(false);
+        
+        if (result.success) {
+            navigate("/home");
+        } else {
+            setError(result.error || "Login failed. Please try again.");
+        }
     };
 
     return (
       <div className="container">
         <div className="card">
-          <button onClick={() => setView("choice")} className="back-button">
+          <button onClick={() => navigate("/")} className="back-button">
             ← Back
           </button>
           <div className="form-header">
@@ -46,10 +61,13 @@ export default function Login({setView, onLogin}) {
                 placeholder="••••••••"
                 required
                 className="input"
-                onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
+                onKeyPress={(e) => e.key === 'Enter' && !loading && handleSubmit()}
               />
             </div>
-            <button onClick={handleSubmit} className="button-submit">Sign In</button>
+            {error && <div className="error-message" style={{color: 'red', marginBottom: '10px'}}>{error}</div>}
+            <button onClick={handleSubmit} className="button-submit" disabled={loading}>
+              {loading ? "Signing In..." : "Sign In"}
+            </button>
           </div>
         </div>
       </div>

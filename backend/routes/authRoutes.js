@@ -1,5 +1,6 @@
 import express from "express";
-import { register, login, logout } from "../controllers/authController.js";
+import { register, login, logout, verify } from "../controllers/authController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -11,5 +12,8 @@ router.post("/login", login);
 
 // API endpoint for user logout
 router.post("/logout", logout);
+
+// API endpoint to get current authenticated user info
+router.get("/me", protect, verify);
 
 export default router;

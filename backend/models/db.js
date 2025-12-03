@@ -93,6 +93,16 @@ export const getUserByEmail = (email) => {
   });
 };
 
+// Get user by ID
+export const getUserById = (id) => {
+  return new Promise((resolve, reject) => {
+    db.get("SELECT id, email, first_name, last_name FROM users WHERE id = ?", [id], (err, row) => {
+      if (err) reject(err);
+      else resolve(row);
+    });
+  });
+};
+
 // Get users by name
 export const getUsersByName = (name) => {
   return new Promise((resolve, reject) => {

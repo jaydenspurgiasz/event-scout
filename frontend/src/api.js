@@ -13,14 +13,22 @@ async function apiRequest(endpoint, options = {}) {
 
   try {
     const response = await fetch(url, config);
-    const data = await response.json();
+    
+    let data;
+    try {
+      data = await response.json();
+    } catch (jsonError) {
+      // If response is not JSON, use status text
+      throw new Error(response.statusText || 'Request failed');
+    }
     
     if (!response.ok) {
-      throw new Error(data.message || 'Request failed');
+      throw new Error(data.message || data.error || `Request failed with status ${response.status}`);
     }
     
     return data;
   } catch (error) {
+    console.error('API request error:', error);
     throw error;
   }
 }
@@ -51,6 +59,12 @@ export const authAPI = {
   logout: async () => {
     return apiRequest('/auth/logout', {
       method: 'POST',
+    });
+  },
+
+  me: async () => {
+    return apiRequest('/auth/me', {
+      method: 'GET',
     });
   },
 };

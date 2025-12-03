@@ -1,20 +1,33 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
-export function SettingsMenu({setView}) {
+export function SettingsMenu() {
+    const navigate = useNavigate();
+    const { logout } = useAuth();
+
+    const handleLogout = async () => {
+        await logout();
+        navigate("/");
+    };
+
     return (
       <div className="container">
         <div className="card">
-          <button onClick={() => setView("profile")} className="back-button">
+          <button onClick={() => navigate("/profile")} className="back-button">
             ← Back
           </button>
           <div className="form-header">
             <h2 className="form-title">Settings</h2>
             <div className="button-group">
-              <button onClick={() => setView("change-email")} className="button-primary">
+              <button onClick={() => navigate("/settings/change-email")} className="button-primary">
                 Change Email
               </button>
-              <button onClick={() => setView("change-password")} className="button-primary">
+              <button onClick={() => navigate("/settings/change-password")} className="button-primary">
                 Change Password
+              </button>
+              <button onClick={handleLogout} className="button-secondary" style={{marginTop: '10px'}}>
+                Logout
               </button>
             </div>
           </div>
@@ -23,21 +36,20 @@ export function SettingsMenu({setView}) {
     );
 }
 
-export function ChangeEmail({setView, currentPassword, onChangeEmail}) {
+export function ChangeEmail() {
+    const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
     const handleSubmit = () => {
-        if(password === currentPassword){
-            onChangeEmail(email);
-            setView("profile");
-        }
+        // TODO: Implement actual email change API call
+        navigate("/profile");
     }
 
     return (
       <div className="container">
         <div className="card">
-          <button onClick={() => setView("settings")} className="back-button">
+          <button onClick={() => navigate("/settings")} className="back-button">
             ← Back
           </button>
           <div className="form-header">
@@ -81,21 +93,20 @@ export function ChangeEmail({setView, currentPassword, onChangeEmail}) {
     );
 }
 
-export function ChangePassword({setView, currentPassword, onChangePassword}) {
+export function ChangePassword() {
+    const navigate = useNavigate();
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
 
     const handleSubmit = () => {
-        if(oldPassword === currentPassword){
-            onChangePassword(newPassword);
-            setView("profile");
-        }
+        // TODO: Implement actual password change API call
+        navigate("/profile");
     }
 
     return (
       <div className="container">
         <div className="card">
-          <button onClick={() => setView("settings")} className="back-button">
+          <button onClick={() => navigate("/settings")} className="back-button">
             ← Back
           </button>
           <div className="form-header">

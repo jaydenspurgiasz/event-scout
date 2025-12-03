@@ -1,8 +1,12 @@
-export default function Following({setView}){
+import { useNavigate } from 'react-router-dom';
+
+export default function Following(){
+    const navigate = useNavigate();
+    
     return (
       <div className="container">
         <div className="card">
-          <button onClick={() => setView("profile")} className="back-button">
+          <button onClick={() => navigate("/profile")} className="back-button">
             ← Back
           </button>
           <div className="form-header">
