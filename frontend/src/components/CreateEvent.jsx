@@ -1,13 +1,11 @@
 import { useState } from "react"
 import { eventsAPI } from "../api.js"
-import { useNavigate } from "react-router-dom"
 
-export default function CreateEvent() {
-  const navigate = useNavigate();
-  
+export default function CreateEvent({ onCancel, onSuccess }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [eventTime, setEventTime] = useState("");
   const [location, setLocation] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -16,17 +14,21 @@ export default function CreateEvent() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!title || !date) {
-      setError("Title and date are required");
+    if (!title || !eventDate || !eventTime) {
+      setError("Title, date, and time are required");
       return;
     }
+    
+    const dateTime = `${eventDate}T${eventTime}:00`;
 
     setLoading(true);
     setError(null);
     
     try {
-      await eventsAPI.create(title, description, date, location, isPrivate);
-      navigate('/home');
+      await eventsAPI.create(title, description, dateTime, location, isPrivate);
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch(err) {
       console.log('error creating event', err);
       setError("Failed to create event");
@@ -36,6 +38,11 @@ export default function CreateEvent() {
 
   return (
     <div className="create-page">
+      {onCancel && (
+        <button className="back-button" onClick={onCancel}>
+          ← Back
+        </button>
+      )}
       <h2>Create New Event</h2>
       <form className="event-form" onSubmit={handleSubmit}>
         <input 
@@ -52,13 +59,24 @@ export default function CreateEvent() {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
-        <input 
-          type="datetime-local" 
-          className="input"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          required
-        />
+        <div>
+          <input 
+            type="date" 
+            className="input"
+            value={eventDate}
+            onChange={(e) => setEventDate(e.target.value)}
+            required
+            style={{ flex: 1 }}
+          />
+          <input 
+            type="time" 
+            className="input"
+            value={eventTime}
+            onChange={(e) => setEventTime(e.target.value)}
+            required
+            style={{ flex: 1 }}
+          />
+        </div>
         <input 
           type="text" 
           placeholder="Location" 

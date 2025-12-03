@@ -13,10 +13,26 @@ export default function Register() {
 
     const handleSubmit = async () => {
         setError("");
+        const nameRegex = /^[A-Za-z-]+\s[A-Za-z-]+$/;
+        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]{2,}$/;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$/;
         
         if (!name.trim()) {
             setError("Please enter your name");
             return;
+        }
+
+        if(!nameRegex.test(name)) {
+          setError("Please enter a valid first and last name with a space between the two");
+          return;
+        }
+        if(!emailRegex.test(email)) {
+          setError("Please enter a valid email");
+          return;
+        }
+        if(!passwordRegex.test(password)) {
+          setError("Please enter a valid 8 character password with at least one uppercase, one lowercase, and one digit");
+          return;
         }
         
         setLoading(true);
@@ -37,7 +53,7 @@ export default function Register() {
           </button>
           <div className="form-header">
             <h2 className="form-title">Register</h2>
-            <p className="form-subtitle">Sign in to your Account</p>
+            <p className="form-subtitle">Sign up to Event Scout</p>
           </div>
             <div className="form-group">
               <div className="input-group">
