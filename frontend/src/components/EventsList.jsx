@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import formatDate from "../utils/formatDate";
 import EventDetail from "./EventDetail";
 import CreateEvent from './CreateEvent';
@@ -9,6 +9,7 @@ export default function EventsList() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [showCreateEvent, setShowCreateEvent] = useState(false);
 
   useEffect(() => {
@@ -40,6 +41,22 @@ export default function EventsList() {
     loadEvents();
   };
 
+  const filteredEvents = useMemo(() => {
+    const list = Array.isArray(events) ? events : [];
+    const q = (searchQuery || '').trim().toLowerCase();
+    if (!q) return list;
+    return list.filter((evt) => {
+      const title = (evt.title || '').toLowerCase();
+      const location = (evt.location || '').toLowerCase();
+      const description = (evt.description || '').toLowerCase();
+      return (
+        title.includes(q) ||
+        location.includes(q) ||
+        description.includes(q)
+      );
+    });
+  }, [events, searchQuery]);
+
   if (selectedEvent) {
     return (
       <EventDetail 
@@ -68,21 +85,42 @@ export default function EventsList() {
 
   return (
     <div className="events-page">
-      <h2>Discover</h2>
-      <div>
-        <button onClick={handleRefresh} disabled={loading}>
-          Refresh
-        </button>
-        <button onClick={() => setShowCreateEvent(true)} disabled={loading}>
-          Create Event
-        </button>
+      <h2>Discover Events</h2>
+      <div className="search-container" style={{ display: 'flex', justifyContent: 'center' }}>
+        <input
+          type="text"
+          placeholder="Search events by title, location, or description"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{
+            width: '100%',
+            maxWidth: 600,
+            margin: '12px 16px 16px',
+            padding: '10px 12px',
+            borderRadius: 8,
+            border: '1px solid #ccc',
+            fontSize: 16,
+          }}
+        />
       </div>
 
+      <button onClick={handleRefresh} disabled={loading}>
+        Refresh
+      </button>
+
+      <button onClick={() => setShowCreateEvent(true)} disabled={loading}>
+          Create Event
+      </button>
+
       {loading && <p>Loading events...</p>}
+      {error && <p className="error-text">Error: {error}</p>}
       {!loading && !error && events.length === 0 && <p>No events yet.</p>}
+      {!loading && !error && events.length > 0 && filteredEvents.length === 0 && (
+        <p>No events match your search.</p>
+      )}
 
       <div className="events-list">
-        {events.map((event) => {
+        {filteredEvents.map((event) => {
           return (
             <div
               key={event.id}
