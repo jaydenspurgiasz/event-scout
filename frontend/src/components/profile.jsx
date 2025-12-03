@@ -1,12 +1,20 @@
-export default function Profile ({setView, name, email}) {
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+
+export default function Profile() {
+    const navigate = useNavigate();
+    const { user } = useAuth();
+    const name = user ? `${user.firstName} ${user.lastName}` : '';
+    const email = user?.email || '';
+
     return (
       <div className="container">
         <div className="card">
           <div>
-            <button onClick={() => setView("choice")} className="back-button">
+            <button onClick={() => navigate("/home")} className="back-button">
               ← Back
             </button>
-            <button onClick={() => setView("settings")} className="settings-button">
+            <button onClick={() => navigate("/settings")} className="settings-button">
               Settings
             </button>
             
@@ -20,11 +28,11 @@ export default function Profile ({setView, name, email}) {
             </p>
           </div>
           <div className="profile-stats">
-            <button onClick={() => setView("followers")}>
+            <button onClick={() => navigate("/followers")}>
               <span className="stat-number">1</span>
               <span className="stat-label"> followers</span>
             </button>
-            <button onClick={() => setView("following")}>
+            <button onClick={() => navigate("/following")}>
               <span className="stat-number">1</span>
               <span className="stat-label"> following</span>
             </button>

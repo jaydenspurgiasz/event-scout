@@ -1,6 +1,10 @@
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || "default_secret_key_change_in_production";
+
+if (!process.env.JWT_SECRET) {
+  console.warn("WARNING: JWT_SECRET not set in environment variables. Using default secret.");
+}
 
 export const protect = (req, res, next) => {
   const token = req.cookies.token;
@@ -10,9 +14,9 @@ export const protect = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = { id: decoded.id };
-
     next();
   } catch (err) {
+    console.error("Auth middleware error:", err);
     return res.status(401).json({ message: "Unauthorized" });
   }
 };

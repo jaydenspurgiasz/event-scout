@@ -1,17 +1,42 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
-export default function Register({setView, onRegister}) {
+export default function Register() {
+    const navigate = useNavigate();
+    const { register } = useAuth();
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = () => {
-        onRegister(name, email, password);
+    const handleSubmit = async () => {
+        setError("");
+        
+        if (!name.trim()) {
+            setError("Please enter your name");
+            return;
+        }
+        
+        const nameParts = name.trim().split(/\s+/);
+        const firstName = nameParts[0];
+        const lastName = nameParts.slice(1).join(' ') || '';
+        
+        setLoading(true);
+        const result = await register(firstName, lastName, email, password);
+        setLoading(false);
+        
+        if (result.success) {
+            navigate("/home");
+        } else {
+            setError(result.error || "Registration failed. Please try again.");
+        }
     };
     return (
       <div className="container">
         <div className="card">
-          <button onClick={() => setView("choice")} className="back-button">
+          <button onClick={() => navigate("/")} className="back-button">
             ← Back
           </button>
           <div className="form-header">
@@ -32,7 +57,7 @@ export default function Register({setView, onRegister}) {
                 placeholder="First Last"
                 required
                 className="input"
-                onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
+                onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
               />
             </div>
               <label htmlFor="login-email" className="label">
@@ -46,7 +71,7 @@ export default function Register({setView, onRegister}) {
                 placeholder="you@example.com"
                 required
                 className="input"
-                onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
+                onKeyDown={(e) => e.key === 'Enter' && !loading && handleSubmit()}
               />
             </div>
             <div className="input-group">
@@ -61,10 +86,13 @@ export default function Register({setView, onRegister}) {
                 placeholder="••••••••"
                 required
                 className="input"
-                onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
+                onKeyDown={(e) => e.key === 'Enter' && !loading && handleSubmit()}
               />
             </div>
-            <button onClick={handleSubmit} className="button-submit">Sign Up</button>
+            {error && <div className="error-message" style={{color: 'red', marginBottom: '10px'}}>{error}</div>}
+            <button onClick={handleSubmit} className="button-submit" disabled={loading}>
+              {loading ? "Signing Up..." : "Sign Up"}
+            </button>
           </div>
         </div>
       </div>

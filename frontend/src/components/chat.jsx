@@ -1,10 +1,13 @@
 import React, { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
-export function ChatList({setView, setCurrentChat}) {
+export function ChatList() {
+    const navigate = useNavigate();
+    
     return (
       <div className="container">
         <div className="card">
-          <button onClick={() => setView("choice")} className="back-button">
+          <button onClick={() => navigate("/home")} className="back-button">
               ← Back
           </button>
           <div className="form-header">
@@ -13,10 +16,10 @@ export function ChatList({setView, setCurrentChat}) {
             </h2>
           </div>
           <div className="chat-list">
-            <button onClick={() => {setView("chat"); setCurrentChat("user1");}} className="chat-item">
+            <button onClick={() => navigate("/chats/user1")} className="chat-item">
               <span className="chat-name">user1</span>
             </button>
-            <button onClick={() => {setView("chat"); setCurrentChat("user2");}} className="chat-item">
+            <button onClick={() => navigate("/chats/user2")} className="chat-item">
               <span className="chat-name">user2</span>
             </button>
           </div>
@@ -25,25 +28,33 @@ export function ChatList({setView, setCurrentChat}) {
     );
 }
 
-export function ChatRoom({setView, currentChat, messages, onSendMessage}) {
+export function ChatRoom() {
+    const navigate = useNavigate();
+    const { chatId } = useParams();
     const [messageInput, setMessageInput] = useState("");
+    const [messages, setMessages] = useState([]);
 
     const handleSend = () => {
         if (messageInput.trim()) {
-        onSendMessage(messageInput);
-        setMessageInput("");
+            const newMessage = {
+                sender: "me",
+                text: messageInput,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+            setMessages([...messages, newMessage]);
+            setMessageInput("");
         }
     };
 
     return (
       <div className="container">
         <div className="chat-card">
-          <button onClick={() => setView("chat-list")} className="back-button">
+          <button onClick={() => navigate("/chats")} className="back-button">
               ← Back
           </button>
           <div className="form-header">
             <h2>
-              {currentChat}
+              {chatId}
             </h2>
           </div>
           <div className="messages-container">
