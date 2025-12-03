@@ -1,4 +1,4 @@
-export default function profile ({setView, name, email}) {
+export default function Profile ({setView, name, email}) {
     return (
       <div className="container">
         <div className="card">
