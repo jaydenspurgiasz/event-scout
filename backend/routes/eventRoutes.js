@@ -20,9 +20,9 @@ router.delete("/:id/rsvp", protect, unRsvpUserFromEvent);
 router.get("/search/title", optionalAuth, searchEventsByTitle);
 
 // Get event details by ID
-router.get("/event/:id", optionalAuth, searchEventById);
+router.get("/:id", optionalAuth, searchEventById);
 
 // Get event participants by ID
-router.get("/event/:id/participants", optionalAuth, getEventParticipants);
+router.get("/:id/participants", optionalAuth, getEventParticipants);
 
 export default router;
