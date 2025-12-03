@@ -3,6 +3,11 @@
 /.pnp
 .pnp.js
 
+# cache
+**/.cache/
+**/.eslintcache
+.eslintcache
+
 .env
 /backend/.env
 
