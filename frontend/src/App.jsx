@@ -480,7 +480,7 @@ export default function App() {
               {name}
             </h2>
             <p className="subtitle">
-              {existingEmail}
+              {email}
             </p>
           </div>
           <div className="profile-stats">
@@ -564,10 +564,10 @@ export default function App() {
   if(view === "change-email") {
     const changeEmail = () => {
       if(tempPassword === password){
-        setExistingEmail(newEmail);
+        setEmail(tempEmail);
       }
       setTempPassword("");
-      setNewEmail("");
+      setTempEmail("");
     }
 
     return (
@@ -586,8 +586,8 @@ export default function App() {
                 <input
                   id="change-email"
                   type="email"
-                  value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
+                  value={tempEmail}
+                  onChange={(e) => setTempEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
                   className="input"
