@@ -1,4 +1,4 @@
-export default function following({setView}){
+export default function Following({setView}){
     return (
       <div className="container">
         <div className="card">
