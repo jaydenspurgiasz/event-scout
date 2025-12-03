@@ -1,12 +1,12 @@
 import { useState } from "react";
 
-export default function Login({setView, onLogin}) {
+export default function Register({setView, onRegister}) {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
     const handleSubmit = () => {
-        onLogin(name, email, password);
+        onRegister(name, email, password);
     };
     return (
       <div className="container">
@@ -15,7 +15,7 @@ export default function Login({setView, onLogin}) {
             ← Back
           </button>
           <div className="form-header">
-            <h2 className="form-title">Login</h2>
+            <h2 className="form-title">Register</h2>
             <p className="form-subtitle">Sign in to your Account</p>
           </div>
             <div className="form-group">
@@ -32,6 +32,7 @@ export default function Login({setView, onLogin}) {
                 placeholder="First Last"
                 required
                 className="input"
+                onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
               />
             </div>
               <label htmlFor="login-email" className="label">
@@ -45,6 +46,7 @@ export default function Login({setView, onLogin}) {
                 placeholder="you@example.com"
                 required
                 className="input"
+                onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
               />
             </div>
             <div className="input-group">
@@ -59,9 +61,10 @@ export default function Login({setView, onLogin}) {
                 placeholder="••••••••"
                 required
                 className="input"
+                onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
               />
             </div>
-            <button onClick={handleSubmit} className="button-submit">Sign In</button>
+            <button onClick={handleSubmit} className="button-submit">Sign Up</button>
           </div>
         </div>
       </div>

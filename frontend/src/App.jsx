@@ -19,9 +19,13 @@ export default function App() {
   const [currentChat, setCurrentChat] = useState(null);
   const [chats, setChats] = useState({user1: [], user2: []});
 
+  const [loggedIn, setLoggedIn] = useState(false);
+
   const handleLogin = (loginEmail, loginPassword) => {
     setEmail(loginEmail);
     setPassword(loginPassword);
+    setLoggedIn(true);
+    setView("choice");
   }
 
   const handleRegister = (registerName, registerEmail, registerPassword) => {
@@ -45,6 +49,22 @@ export default function App() {
       }));
     }
   };
+
+  if (!loggedIn) {
+    switch (view) {
+      case "choice":
+        return <Choice setView={setView} />;
+
+      case "login":
+        return <Login setView={setView} onLogin={handleLogin} isLoggedIn={setLoggedIn}/>;
+
+      case "register":
+        return <Register setView={setView} onRegister={handleRegister} />;
+
+      default:
+        return <Register setView={setView} />;
+    }
+  }
 
   switch (view) {
     case "choice":
@@ -98,6 +118,7 @@ export default function App() {
           onSendMessage={handleSendMessage}
         />
       );
+    
     default:
       return <Choice setView={setView} />;
   }

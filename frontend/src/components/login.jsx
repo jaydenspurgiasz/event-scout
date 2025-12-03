@@ -7,6 +7,7 @@ export default function Login({setView, onLogin}) {
     const handleSubmit = () => {
         onLogin(email, password);
     };
+
     return (
       <div className="container">
         <div className="card">
