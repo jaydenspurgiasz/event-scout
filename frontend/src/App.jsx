@@ -235,7 +235,7 @@ export default function App() {
             ← Back
           </button>
           <div className="form-header">
-            <h2 className="form-title">Following</h2>
+            <h2 className="form-title">Followers</h2>
           </div>
         </div>
       </div>
