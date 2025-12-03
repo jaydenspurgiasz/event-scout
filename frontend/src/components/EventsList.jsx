@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import formatDate from "../utils/formatDate";
 import EventDetail from "./EventDetail";
+import CreateEvent from './CreateEvent';
 import { eventsAPI } from '../api';
 
 export default function EventsList() {
@@ -9,6 +10,7 @@ export default function EventsList() {
   const [error, setError] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showCreateEvent, setShowCreateEvent] = useState(false);
 
   useEffect(() => {
     loadEvents();
@@ -65,6 +67,22 @@ export default function EventsList() {
     );
   }
 
+  if (showCreateEvent) {
+    return (
+      <CreateEvent 
+        onCancel={() => setShowCreateEvent(false)}
+        onSuccess={() => {
+          setShowCreateEvent(false);
+          handleRefresh();
+        }}
+      />
+    );
+  }
+
+  if (!events) {
+    events = [];
+  }
+
   return (
     <div className="events-page">
       <h2>Discover Events</h2>
@@ -88,6 +106,10 @@ export default function EventsList() {
 
       <button onClick={handleRefresh} disabled={loading}>
         Refresh
+      </button>
+
+      <button onClick={() => setShowCreateEvent(true)} disabled={loading}>
+          Create Event
       </button>
 
       {loading && <p>Loading events...</p>}

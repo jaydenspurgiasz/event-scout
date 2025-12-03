@@ -9,24 +9,25 @@ export default function HomePage() {
   const navigate = useNavigate();
   const [page, setPage] = useState('home');
 
+  const handlePageChange = (nextPage) => {
+    if (nextPage === 'profile') {
+      navigate('/profile');
+    } else {
+      setPage(nextPage);
+    }
+  };
+
   return (
     <div className="app">
       <header className="app-header">
-        <h1>EventScout</h1>
+        <h1>Event Scout</h1>
       </header>
       <main className="app-main">
         {page === 'home' && <EventsList />}
-        {page === 'create' && <CreateEvent />}
       </main>
       <AppNav 
         currentPage={page} 
-        onPageChange={(nextPage) => {
-          setPage(nextPage);
-        }}
-        onHomeClick={() => {
-          setPage('home');
-        }}
-        onProfileClick={() => navigate('/profile')}
+        onPageChange={handlePageChange}
       />
     </div>
   );
