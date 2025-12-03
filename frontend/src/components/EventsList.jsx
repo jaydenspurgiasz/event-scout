@@ -85,8 +85,14 @@ export default function EventsList() {
 
   return (
     <div className="events-page">
-      <h2>Discover Events</h2>
-      <div className="search-container" style={{ display: 'flex', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h2 style={{ margin: 0 }}>Discover Events</h2>
+        <button onClick={() => setShowCreateEvent(true)} disabled={loading}>
+          Create Event
+        </button>
+      </div>
+      
+      <div className="search-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
         <input
           type="text"
           placeholder="Search events by title, location, or description"
@@ -95,22 +101,16 @@ export default function EventsList() {
           style={{
             width: '100%',
             maxWidth: 600,
-            margin: '12px 16px 16px',
             padding: '10px 12px',
             borderRadius: 8,
             border: '1px solid #ccc',
             fontSize: 16,
           }}
         />
+        <button onClick={handleRefresh} disabled={loading} style={{ padding: '10px 12px' }}>
+          Refresh
+        </button>
       </div>
-
-      <button onClick={handleRefresh} disabled={loading}>
-        Refresh
-      </button>
-
-      <button onClick={() => setShowCreateEvent(true)} disabled={loading}>
-          Create Event
-      </button>
 
       {loading && <p>Loading events...</p>}
       {error && <p className="error-text">Error: {error}</p>}
