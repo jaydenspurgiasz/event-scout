@@ -17,6 +17,7 @@ export const initializeDatabase = async () => {
       description TEXT,
       date DATETIME NOT NULL,
       location TEXT,
+      private BOOLEAN DEFAULT FALSE,
       user_id INTEGER,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (user_id) REFERENCES users(id)
@@ -26,7 +27,7 @@ export const initializeDatabase = async () => {
       friend_id INTEGER,
       status TEXT CHECK(status IN ('pending', 'accepted')),
       friended_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      PRIMARY KEY (user_id, friend_id),
+      UNIQUE (user_id, friend_id),
       FOREIGN KEY (user_id) REFERENCES users(id),
       FOREIGN KEY (friend_id) REFERENCES users(id)
     )`,
@@ -62,6 +63,12 @@ export const initializeDatabase = async () => {
   console.log("Database initialized successfully");
 };
 
+/*
+
+User Methods
+
+*/
+
 // Add a user
 export const createUser = (email, password, firstName, lastName) => {
   return new Promise((resolve, reject) => {
@@ -86,24 +93,63 @@ export const getUserByEmail = (email) => {
   });
 };
 
-// Add an event
-export const createEvent = (title, description, date, location, userId) => {
+// Get users by name
+export const getUsersByName = (name) => {
   return new Promise((resolve, reject) => {
-    db.run(
-      "INSERT INTO events (title, description, date, location, user_id) VALUES (?, ?, ?, ?, ?)",
-      [title, description, date, location, userId],
+    db.all("SELECT * FROM users WHERE first_name = ?", [name], (err, row) => {
+      if (err) reject(err);
+      else resolve(row);
+    });
+  });
+}
+
+/*
+
+Event Methods
+
+*/
+
+// Add an event
+export const createEvent = (title, description, date, location, priv, userId) => {
+  return new Promise((resolve, reject) => {
+    db.run( 
+      "INSERT INTO events (title, description, date, location, private, user_id) VALUES (?, ?, ?, ?, ?, ?)",
+      [title, description, date, location, priv, userId],
       function (err) {
         if (err) reject(err);
-        else resolve(this.lastID);
+        else resolve({id: this.lastID});
       }
     );
   });
 };
 
 // Get all events
-export const getEvents = () => {
+export const getPublicEvents = () => {
   return new Promise((resolve, reject) => {
-    db.all("SELECT * FROM events", [], (err, rows) => {
+    db.all("SELECT * FROM events WHERE NOT private", [], (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+};
+
+// Get all events, given an authenticated user ID
+export const getAllEvents = (userID) => {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT DISTINCT
+        e.*
+      FROM
+        events e
+      LEFT JOIN
+        friends f ON (f.user_id = e.user_id AND f.friend_id = ?) OR (f.friend_id = e.user_id AND f.user_id = ?)
+      WHERE
+        NOT e.private
+        OR f.user_id IS NOT NULL
+        OR e.user_id = ?
+    `;
+
+    db.all(sql, [userID, userID, userID], (err, rows) => {
       if (err) reject(err);
       else resolve(rows);
     });
@@ -111,9 +157,25 @@ export const getEvents = () => {
 };
 
 // Get event by id
-export const getEventById = (id) => {
+export const getEventById = (id, userID) => {
   return new Promise((resolve, reject) => {
-    db.get("SELECT * FROM events WHERE id = ?", [id], (err, row) => {
+    const sql = `
+      SELECT
+        e.*
+      FROM
+        events e
+      LEFT JOIN
+        friends f ON (f.user_id = e.user_id AND f.friend_id = ?) OR (f.friend_id = e.user_id AND f.user_id = ?)
+      WHERE
+        e.id = ?
+        AND (
+          NOT e.private
+          OR f.user_id IS NOT NULL
+          OR e.user_id = ?
+        )
+    `
+
+    db.get(sql, [userID, userID, id, userID], (err, row) => {
       if (err) reject(err);
       else resolve(row);
     });
@@ -121,136 +183,288 @@ export const getEventById = (id) => {
 };
 
 // Get events by title
-export const getEventsByTitle = (title) => {
+export const getEventsByTitle = (title, userID) => {
   return new Promise((resolve, reject) => {
-    db.all("SELECT * FROM events WHERE title = ?", [title], (err, row) => {
-      if (err) reject(err);
-      else resolve(row);
+    if (!userID) {
+      // If no user ID, only return public events
+      db.all("SELECT * FROM events WHERE title = ? AND NOT private", [title], (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      });
+    } else {
+      // If user ID provided, return public events or events from friends or own events
+      const sql = `
+        SELECT DISTINCT
+          e.*
+        FROM
+          events e
+        LEFT JOIN
+          friends f ON (f.user_id = e.user_id AND f.friend_id = ?) OR (f.friend_id = e.user_id AND f.user_id = ?)
+        WHERE
+          e.title = ?
+          AND (
+            NOT e.private
+            OR f.user_id IS NOT NULL
+            OR e.user_id = ?
+          )
+      `;
+      db.all(sql, [userID, userID, title, userID], (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      });
+    }
+  });
+}
+
+// RSVP User to an event
+export const addUserToEvent = (userId, eventId) => {
+  return new Promise((resolve, reject) => {
+    const checkSql = `
+      SELECT 
+        e.user_id AS host_id
+      FROM 
+        events e
+      LEFT JOIN 
+        friends f ON (f.user_id = e.user_id AND f.friend_id = ?) 
+                  OR (f.friend_id = e.user_id AND f.user_id = ?)
+      WHERE 
+        e.id = ? 
+        AND (
+          NOT e.private
+          OR e.user_id = ?
+          OR f.user_id IS NOT NULL
+        )
+    `;
+
+    db.get(checkSql, [userId, userId, eventId, userId], (err, row) => {
+      if (err) return reject(err);
+      if (!row) {
+        return reject(new Error("Event not found."));
+      }
+      db.run(
+        "INSERT OR IGNORE INTO participants (event_id, user_id) VALUES (?, ?)",
+        [eventId, userId],
+        (err) => {
+          if (err) return reject(err);
+          resolve();
+        }
+      );
     });
   });
+};
+
+// Un-RSVP User from an event
+export const removeUserFromEvent = (userId, eventId) => {
+  return new Promise((resolve, reject) => {
+    db.run(
+      "DELETE FROM participants WHERE event_id = ? AND user_id = ?",
+      [eventId, userId],
+      (err) => {
+        if (err) reject(err);
+        else resolve();
+      }
+    );
+  });
+}
+
+// Check all users attending an event
+export const getAllEventParticipants = (requesterId, eventId) => {
+  return new Promise((resolve, reject) => {
+    const checkSql = `
+      SELECT 
+        e.user_id AS host_id
+      FROM 
+        events e
+      LEFT JOIN 
+        friends f ON (f.user_id = e.user_id AND f.friend_id = ?) 
+                  OR (f.friend_id = e.user_id AND f.user_id = ?)
+      WHERE 
+        e.id = ? 
+        AND (
+          NOT e.private
+          OR e.user_id = ?
+          OR f.user_id IS NOT NULL
+        )
+    `;
+
+    db.get(checkSql, [requesterId, requesterId, eventId, requesterId], (err, row) => {
+      if (err) return reject(err);
+      if (!row) {
+        return reject(new Error("Event not found."));
+      }
+      db.all(
+        `
+        SELECT
+          u.id,
+          u.email,
+          u.first_name,
+          p.created_at
+        FROM
+          users u
+        JOIN
+          participants p ON u.id = p.user_id
+        WHERE
+          p.event_id = ?
+        `,
+        [eventId],
+        (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows);
+        }
+      );
+    });
+  });
+};
+
+/*
+ 
+Friend Methods
+ 
+*/
+
+
+// Determine standard order of IDs in friend table
+const getFriendOrder = (userId, friendId) => {
+  // Smaller user ID first
+  if (userId < friendId) {
+    return [userId, friendId];
+  }
+  return [friendId, userId];
 }
 
 // Send Friend Request
 export const sendFriendRequest = (userId, friendId) => {
   return new Promise((resolve, reject) => {
-    // Check for reverse pending request
+    // Check for pending request
     db.get(
       "SELECT * FROM friends WHERE user_id = ? AND friend_id = ? AND status = 'pending'",
       [friendId, userId],
       (err, row) => {
-        if (err) return reject(err);
-
-        if (row) {
-          // Mutual request - accept both
-          const now = new Date().toISOString();
-          db.serialize(() => {
-            db.run(
-              "UPDATE friends SET status = 'accepted', friended_at = ? WHERE user_id = ? AND friend_id = ?",
-              [now, friendId, userId]
-            );
-            db.run(
-              "INSERT INTO friends (user_id, friend_id, status, friended_at) VALUES (?, ?, 'accepted', ?)",
-              [userId, friendId, now],
-              (err) => {
-                if (err) reject(err);
-                else resolve();
-              }
-            );
-          });
-        } else {
-          // Normal request
-          db.run(
-            "INSERT INTO friends (user_id, friend_id, status, friended_at) VALUES (?, ?, 'pending', CURRENT_TIMESTAMP)",
-            [userId, friendId],
-            (err) => {
-              if (err) reject(err);
-              else resolve();
-            }
-          );
-        }
+      if (err) return reject(err);
+      if (row) {
+        return acceptFriendRequest(userId, friendId).then(resolve).catch(reject);
+      } else {
+        // Send request
+        db.run(
+          "INSERT OR IGNORE INTO friends (user_id, friend_id, status, friended_at) VALUES (?, ?, 'pending', CURRENT_TIMESTAMP)",
+          [userId, friendId],
+          (err) => {
+            if (err) return reject(err);
+            resolve();
+          }
+        )
       }
-    );
-  });
+    }
+  )
+});
 };
 
 // Accept Friend Request
 export const acceptFriendRequest = (userId, friendId) => {
   return new Promise((resolve, reject) => {
-    const now = new Date().toISOString();
-    db.serialize(() => {
-      // Update existing request
+  // Needs to remove pending request and add accepted in order
+  db.get(
+    "SELECT * FROM friends WHERE user_id = ? AND friend_id = ? AND status = 'pending'",
+    [friendId, userId],
+    (err, row) => {
+      if (err) return reject(err);
+      if (!row) return reject(new Error("No pending request"));
       db.run(
-        "UPDATE friends SET status = 'accepted', friended_at = ? WHERE user_id = ? AND friend_id = ?",
-        [now, friendId, userId]
-      );
-      // Create reverse relationship
-      db.run(
-        "INSERT INTO friends (user_id, friend_id, status, friended_at) VALUES (?, ?, 'accepted', ?)",
-        [userId, friendId, now],
+        "DELETE FROM friends WHERE user_id = ? AND friend_id = ?",
+        [friendId, userId],
         (err) => {
-          if (err) reject(err);
-          else resolve();
+          if (err) return reject(err);
+          db.run(
+            "INSERT OR IGNORE INTO friends (user_id, friend_id, status, friended_at) VALUES (?, ?, 'accepted', CURRENT_TIMESTAMP)",
+            getFriendOrder(userId, friendId),
+            (err) => {
+              if (err) return reject(err);
+              resolve();
+            }
+          )
         }
-      );
-    });
+      )
+    }
+  )
   });
 };
 
 // Reject Friend Request
 export const rejectFriendRequest = (userId, friendId) => {
   return new Promise((resolve, reject) => {
-    db.run(
-      "DELETE FROM friends WHERE user_id = ? AND friend_id = ?",
-      [friendId, userId],
-      (err) => {
-        if (err) reject(err);
-        else resolve();
-      }
-    );
-  });
+  // If there is a pending request from the user, delete it
+  db.run(
+    "DELETE FROM friends WHERE user_id = ? AND friend_id = ? AND status = 'pending'",
+    [friendId, userId],
+    (err) => {
+      if (err) return reject(err);
+      resolve();
+    }
+  )
+});
 };
 
 // Remove Friend
-export const removeFriend = (userId, friendId) => {
+export const deleteFriend = (userId, friendId) => {
   return new Promise((resolve, reject) => {
-    db.run(
-      "DELETE FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)",
-      [userId, friendId, friendId, userId],
-      (err) => {
-        if (err) reject(err);
-        else resolve();
-      }
-    );
-  });
+  // If the users are friends or if there is a pending request, delete the entry 
+  db.run(
+    "DELETE FROM friends WHERE user_id = ? AND friend_id = ?",
+    getFriendOrder(userId, friendId),
+    (err) => {
+      if (err) return reject(err);
+      resolve();
+    }
+  )
+});
 };
 
 // Get Friends
 export const getFriends = (userId) => {
   return new Promise((resolve, reject) => {
-    db.all(
-      `SELECT u.id, u.email, u.first_name, u.last_name 
-       FROM users u 
-       JOIN friends f ON u.id = f.friend_id 
-       WHERE f.user_id = ? AND f.status = 'accepted'`,
-      [userId],
-      (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
-      }
-    );
-  });
+  // Return all friends of the current user
+  // Should return each friend's: id, email, first_name, last_name(if exists), friended_at
+  db.all(
+    `SELECT
+      u.id, u.email, u.first_name, f.friended_at
+    FROM
+      users u
+    JOIN
+      friends f ON ((f.user_id = ? AND u.id = f.friend_id) OR (f.friend_id = ? AND u.id = f.user_id))
+    WHERE
+      f.status = 'accepted'
+    `,
+    [userId, userId],
+    (err, rows) => {
+      if (err) return reject(err);
+      resolve(rows);
+    }
+  )
+});
 };
 
 // Get Friend Requests
 export const getFriendRequests = (userId) => {
   return new Promise((resolve, reject) => {
-    db.all(
-      "SELECT * FROM friends WHERE friend_id = ? AND status = 'pending'",
-      [userId],
-      (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
-      }
-    );
-  });
+  // Return all friend requests to the current user
+  db.all(
+    `SELECT 
+         f.user_id, 
+         u.email, 
+         u.first_name, 
+         f.status,
+         f.friended_at
+       FROM
+         users u
+       JOIN 
+         friends f ON u.id = f.user_id
+       WHERE 
+         f.friend_id = ? AND f.status = 'pending'`,
+    [userId],
+    (err, rows) => {
+      if (err) return reject(err);
+      resolve(rows);
+    }
+  )
+});
 };

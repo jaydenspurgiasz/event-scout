@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function login({setView, onLogin}) {
+export default function Login({setView, onLogin}) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -30,6 +30,7 @@ export default function login({setView, onLogin}) {
                 placeholder="you@example.com"
                 required
                 className="input"
+                onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
               />
             </div>
             <div className="input-group">
@@ -44,6 +45,7 @@ export default function login({setView, onLogin}) {
                 placeholder="••••••••"
                 required
                 className="input"
+                onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
               />
             </div>
             <button onClick={handleSubmit} className="button-submit">Sign In</button>

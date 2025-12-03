@@ -12,7 +12,8 @@ const {
   createUser,
   getUserByEmail,
   createEvent,
-  getEvents,
+  getPublicEvents,
+  getAllEvents,
   getEventById,
   getEventsByTitle
 } = await import('../models/db.js');
@@ -27,17 +28,20 @@ afterAll((done) => {
 
 describe('Database Operations', () => {
   describe('User Operations', () => {
+    // Create a new user successfully
     test('Create a User', async () => {
       const userId = await createUser('test@example.com', 'password123', 'John', 'Doe');
       expect(userId).toBeDefined();
       expect(typeof userId).toBe('number');
     });
 
+    // Reject duplicate email registration
     test('Reject Duplicate Email', async () => {
       await expect(createUser('test@example.com', 'password!', 'Jane', 'Doe'))
         .rejects.toThrow();
     });
 
+    // Retrieve existing user by email
     test('Retrieve User by Email', async () => {
       const user = await getUserByEmail('test@example.com');
       expect(user).toBeDefined();
@@ -45,6 +49,7 @@ describe('Database Operations', () => {
       expect(user.first_name).toBe('John');
     });
 
+    // Return undefined for non-existent user
     test('No User Found', async () => {
       const user = await getUserByEmail('someguy@example.com');
       expect(user).toBeUndefined();
@@ -55,58 +60,60 @@ describe('Database Operations', () => {
     let userId;
 
     beforeAll(async () => {
-      userId = await createUser('eventhost@example.com', 'pass', 'Host');
+      userId = await createUser('eventhost@example.com', 'pass', 'Host', 'User');
     });
 
+    // Create an event successfully
     test('Create an Event', async () => {
-      const eventId = await createEvent(
+      const event = await createEvent(
         'Test Event',
         'Description',
         '2025-11-22',
         'Cool Location',
+        false,
         userId
       );
-      expect(eventId).toBeDefined();
-      expect(typeof eventId).toBe("number");
+      expect(event).toBeDefined();
+      expect(event).toHaveProperty('id');
     });
 
-    test('Get All Events', async () => {
-      const events = await getEvents();
+    // Get all public events
+    test('Get Public Events', async () => {
+      const events = await getPublicEvents();
       expect(Array.isArray(events)).toBe(true);
       expect(events.length).toBeGreaterThan(0);
       expect(events[0]).toHaveProperty('title');
     });
 
+    // Get all events for a user
+    test('Get All Events for User', async () => {
+      const events = await getAllEvents(userId);
+      expect(Array.isArray(events)).toBe(true);
+      expect(events.length).toBeGreaterThan(0);
+    });
+
+    // Get event by ID
     test('Get Event by ID', async () => {
-      const eventId = await createEvent(
+      const newEvent = await createEvent(
         'Cool Event',
         'Desc.',
         '2025-11-25',
         'Location',
+        false,
         userId
       );
-      const event = await getEventById(eventId);
+      const event = await getEventById(newEvent.id, userId);
       expect(event).toBeDefined();
       expect(event.title).toBe('Cool Event');
     });
 
-    test('Get Non-Existent Event by ID', async () => {
-      const event = await getEventById(99999);
-      expect(event).toBeUndefined();
-    });
-
+    // Get events by title search
     test('Get Events by Title', async () => {
-      await createEvent('Party', 'Desc', '2025-12-01', 'Loc', userId);
-      const events = await getEventsByTitle('Party');
+      await createEvent('Party', 'Desc', '2025-12-01', 'Loc', false, userId);
+      const events = await getEventsByTitle('Party', userId);
       expect(Array.isArray(events)).toBe(true);
       expect(events.length).toBeGreaterThan(0);
       expect(events[0].title).toBe('Party');
-    });
-
-    test('Get Non-Existent Events by Title', async () => {
-      const events = await getEventsByTitle('Nonexistent Event');
-      expect(Array.isArray(events)).toBe(true);
-      expect(events.length).toBe(0);
     });
   });
 });

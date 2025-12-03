@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function login({setView, onLogin}) {
+export default function Login({setView, onLogin}) {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");

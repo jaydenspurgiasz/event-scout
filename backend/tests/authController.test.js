@@ -31,11 +31,13 @@ describe('Auth Controller', () => {
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
+      cookie: jest.fn(),
     };
     jest.clearAllMocks();
   });
 
   describe('Register', () => {
+    // Successfully register a new user
     test('Register New User', async () => {
       req.body = {
         email: 'test@example.com',
@@ -58,6 +60,7 @@ describe('Auth Controller', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'User created' });
     });
 
+    // Reject registration when email already exists
     test('Register Existing User', async () => {
       req.body = {
         email: 'existing@example.com',
@@ -73,6 +76,7 @@ describe('Auth Controller', () => {
   });
 
   describe('Login', () => {
+    // Successfully login with valid credentials and set cookie
     test('Valid Login', async () => {
       req.body = {
         email: 'test@example.com',
@@ -91,10 +95,17 @@ describe('Auth Controller', () => {
       expect(getUserByEmail).toHaveBeenCalledWith('test@example.com');
       expect(bcrypt.compareSync).toHaveBeenCalledWith('password123', 'hashed_password');
       expect(jwt.sign).toHaveBeenCalled();
+      expect(res.cookie).toHaveBeenCalledWith('token', 'mock_token', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 1800000
+      });
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ token: 'mock_token' });
+      expect(res.json).toHaveBeenCalledWith({ message: 'Login successful' });
     });
 
+    // Reject login when email doesn't exist
     test('Invalid Email', async () => {
       req.body = {
         email: 'nonexistent@example.com',
@@ -108,6 +119,7 @@ describe('Auth Controller', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Invalid email or password' });
     });
 
+    // Reject login when password is incorrect
     test('Invalid Password', async () => {
       req.body = {
         email: 'test@example.com',
@@ -127,6 +139,7 @@ describe('Auth Controller', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'Invalid email or password' });
     });
 
+    // Handle database errors during login
     test('Server Error', async () => {
       req.body = {
         email: 'test@example.com',
