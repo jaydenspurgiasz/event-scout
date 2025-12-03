@@ -4,7 +4,7 @@ export const sendRequest = async (req, res) => {
     const id = req.user.id;
     const { friendId } = req.body;
     try {
-        sendFriendRequest(id, friendId);
+        await sendFriendRequest(id, friendId);
         res.status(200).json({ message: "Friend request sent" });
     } catch (error) {
         console.error(error);
@@ -16,7 +16,7 @@ export const acceptRequest = async (req, res) => {
     const id = req.user.id;
     const { friendId } = req.body;
     try {
-        acceptFriendRequest(id, friendId);
+        await acceptFriendRequest(id, friendId);
         res.status(200).json({ message: "Friend request accepted" });
     } catch (error) {
         console.error(error);
@@ -28,7 +28,7 @@ export const rejectRequest = async (req, res) => {
     const id = req.user.id;
     const { friendId } = req.body;
     try {
-        rejectFriendRequest(id, friendId);
+        await rejectFriendRequest(id, friendId);
         res.status(200).json({ message: "Friend request rejected" });
     } catch (error) {
         console.error(error);
@@ -40,7 +40,7 @@ export const removeFriend = async (req, res) => {
     const id = req.user.id;
     const { friendId } = req.body;
     try {
-        deleteFriend(id, friendId);
+        await deleteFriend(id, friendId);
         res.status(200).json({ message: "Friend removed" });
     } catch (error) {
         console.error(error);

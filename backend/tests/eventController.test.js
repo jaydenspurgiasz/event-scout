@@ -6,6 +6,9 @@ jest.unstable_mockModule('../models/db.js', () => ({
   getAllEvents: jest.fn(),
   getEventById: jest.fn(),
   getEventsByTitle: jest.fn(),
+  addUserToEvent: jest.fn(),
+  removeUserFromEvent: jest.fn(),
+  getAllEventParticipants: jest.fn(),
 }));
 
 const {
@@ -13,14 +16,20 @@ const {
   getPublicEvents,
   getAllEvents,
   getEventById,
-  getEventsByTitle
+  getEventsByTitle,
+  addUserToEvent,
+  removeUserFromEvent,
+  getAllEventParticipants
 } = await import('../models/db.js');
 
 const {
   addEvent,
   searchEvents,
   searchEventById,
-  searchEventsByTitle
+  searchEventsByTitle,
+  getEventParticipants,
+  rsvpUserToEvent,
+  unRsvpUserFromEvent
 } = await import('../controllers/eventController.js');
 
 describe('Event Controller', () => {
@@ -177,6 +186,84 @@ describe('Event Controller', () => {
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ error: 'DB Error' });
+    });
+  });
+
+  describe('rsvpUserToEvent', () => {
+    // Successfully RSVP user to event
+    test('RSVP user to event successfully', async () => {
+      req.params = { id: '123' };
+      addUserToEvent.mockResolvedValue();
+
+      await rsvpUserToEvent(req, res);
+
+      expect(addUserToEvent).toHaveBeenCalledWith(1, '123');
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({ message: 'RSVPed user to event.' });
+    });
+
+    // Handle errors when RSVPing to event
+    test('Handle error RSVPing to event', async () => {
+      req.params = { id: '123' };
+      addUserToEvent.mockRejectedValue(new Error('Event not found.'));
+
+      await rsvpUserToEvent(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Event not found.' });
+    });
+  });
+
+  describe('unRsvpUserFromEvent', () => {
+    // Successfully unRSVP user from event
+    test('UnRSVP user from event successfully', async () => {
+      req.params = { id: '123' };
+      removeUserFromEvent.mockResolvedValue();
+
+      await unRsvpUserFromEvent(req, res);
+
+      expect(removeUserFromEvent).toHaveBeenCalledWith(1, '123');
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({ message: 'unRSVPed user from event.' });
+    });
+
+    // Handle errors when unRSVPing from event
+    test('Handle error unRSVPing from event', async () => {
+      req.params = { id: '123' };
+      removeUserFromEvent.mockRejectedValue(new Error('DB Error'));
+
+      await unRsvpUserFromEvent(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: 'DB Error' });
+    });
+  });
+
+  describe('getEventParticipants', () => {
+    // Successfully get event participants
+    test('Get event participants successfully', async () => {
+      req.params = { id: '123' };
+      const mockParticipants = [
+        { id: 2, email: 'user2@example.com', first_name: 'John', created_at: '2025-01-01' }
+      ];
+      getAllEventParticipants.mockResolvedValue(mockParticipants);
+
+      await getEventParticipants(req, res);
+
+      expect(getAllEventParticipants).toHaveBeenCalledWith(1, '123');
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(mockParticipants);
+    });
+
+    // Handle errors when getting participants
+    test('Handle error getting participants', async () => {
+      req.params = { id: '123' };
+      getAllEventParticipants.mockRejectedValue(new Error('Event not found.'));
+
+      await getEventParticipants(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Event not found.' });
     });
   });
 });

@@ -185,17 +185,141 @@ export const getEventById = (id, userID) => {
 // Get events by title
 export const getEventsByTitle = (title, userID) => {
   return new Promise((resolve, reject) => {
-    db.all("SELECT * FROM events WHERE title = ?", [title], (err, row) => {
-      if (err) reject(err);
-      else resolve(row);
-    });
+    if (!userID) {
+      // If no user ID, only return public events
+      db.all("SELECT * FROM events WHERE title = ? AND NOT private", [title], (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      });
+    } else {
+      // If user ID provided, return public events or events from friends or own events
+      const sql = `
+        SELECT DISTINCT
+          e.*
+        FROM
+          events e
+        LEFT JOIN
+          friends f ON (f.user_id = e.user_id AND f.friend_id = ?) OR (f.friend_id = e.user_id AND f.user_id = ?)
+        WHERE
+          e.title = ?
+          AND (
+            NOT e.private
+            OR f.user_id IS NOT NULL
+            OR e.user_id = ?
+          )
+      `;
+      db.all(sql, [userID, userID, title, userID], (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      });
+    }
   });
 }
 
+// RSVP User to an event
+export const addUserToEvent = (userId, eventId) => {
+  return new Promise((resolve, reject) => {
+    const checkSql = `
+      SELECT 
+        e.user_id AS host_id
+      FROM 
+        events e
+      LEFT JOIN 
+        friends f ON (f.user_id = e.user_id AND f.friend_id = ?) 
+                  OR (f.friend_id = e.user_id AND f.user_id = ?)
+      WHERE 
+        e.id = ? 
+        AND (
+          NOT e.private
+          OR e.user_id = ?
+          OR f.user_id IS NOT NULL
+        )
+    `;
+
+    db.get(checkSql, [userId, userId, eventId, userId], (err, row) => {
+      if (err) return reject(err);
+      if (!row) {
+        return reject(new Error("Event not found."));
+      }
+      db.run(
+        "INSERT OR IGNORE INTO participants (event_id, user_id) VALUES (?, ?)",
+        [eventId, userId],
+        (err) => {
+          if (err) return reject(err);
+          resolve();
+        }
+      );
+    });
+  });
+};
+
+// Un-RSVP User from an event
+export const removeUserFromEvent = (userId, eventId) => {
+  return new Promise((resolve, reject) => {
+    db.run(
+      "DELETE FROM participants WHERE event_id = ? AND user_id = ?",
+      [eventId, userId],
+      (err) => {
+        if (err) reject(err);
+        else resolve();
+      }
+    );
+  });
+}
+
+// Check all users attending an event
+export const getAllEventParticipants = (requesterId, eventId) => {
+  return new Promise((resolve, reject) => {
+    const checkSql = `
+      SELECT 
+        e.user_id AS host_id
+      FROM 
+        events e
+      LEFT JOIN 
+        friends f ON (f.user_id = e.user_id AND f.friend_id = ?) 
+                  OR (f.friend_id = e.user_id AND f.user_id = ?)
+      WHERE 
+        e.id = ? 
+        AND (
+          NOT e.private
+          OR e.user_id = ?
+          OR f.user_id IS NOT NULL
+        )
+    `;
+
+    db.get(checkSql, [requesterId, requesterId, eventId, requesterId], (err, row) => {
+      if (err) return reject(err);
+      if (!row) {
+        return reject(new Error("Event not found."));
+      }
+      db.all(
+        `
+        SELECT
+          u.id,
+          u.email,
+          u.first_name,
+          p.created_at
+        FROM
+          users u
+        JOIN
+          participants p ON u.id = p.user_id
+        WHERE
+          p.event_id = ?
+        `,
+        [eventId],
+        (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows);
+        }
+      );
+    });
+  });
+};
+
 /*
-
+ 
 Friend Methods
-
+ 
 */
 
 
@@ -302,7 +426,7 @@ export const getFriends = (userId) => {
   // Should return each friend's: id, email, first_name, last_name(if exists), friended_at
   db.all(
     `SELECT
-      u.id, u.email, u.first_name, u.last_name, f.friended_at
+      u.id, u.email, u.first_name, f.friended_at
     FROM
       users u
     JOIN
@@ -328,7 +452,6 @@ export const getFriendRequests = (userId) => {
          f.user_id, 
          u.email, 
          u.first_name, 
-         u.last_name,
          f.status,
          f.friended_at
        FROM
