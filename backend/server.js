@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 
 import authRoutes from "./routes/authRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
-import { initializeDatabase } from "./config/database.js";
+import { initializeDatabase } from "./models/db.js";
 import { saveMessage, getMessages } from "./controllers/messageController.js";
 
 dotenv.config();
@@ -14,12 +14,12 @@ dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 3000;
-const allowed = { origin: ["http://localhost:3000", "http://localhost:3001"], credentials: true };
+const allowed = { origin: process.env.CLIENT_URL ? [process.env.CLIENT_URL] : ["http://localhost:3000", "http://localhost:3001"], credentials: true };
 
 // Initialize Socket.IO
 const io = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: process.env.CLIENT_URL ? [process.env.CLIENT_URL] : ["http://localhost:3000", "http://localhost:3001"],
     methods: ["GET", "POST"],
     credentials: true
   }

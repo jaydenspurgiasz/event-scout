@@ -8,11 +8,6 @@
     "dev": "nodemon server.js",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
-  "jest": {
-    "transform": {},
-    "testEnvironment": "node",
-    "testMatch": ["**/tests/**/*.test.js", "**/__tests__/**/*.js", "**/*.test.js"]
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
