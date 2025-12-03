@@ -19,12 +19,8 @@ export default function Register() {
             return;
         }
         
-        const nameParts = name.trim().split(/\s+/);
-        const firstName = nameParts[0];
-        const lastName = nameParts.slice(1).join(' ') || '';
-        
         setLoading(true);
-        const result = await register(firstName, lastName, email, password);
+        const result = await register(name.trim(), email, password);
         setLoading(false);
         
         if (result.success) {

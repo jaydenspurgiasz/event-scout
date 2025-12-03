@@ -2,7 +2,13 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { createUser, getAuthCredentials, getUserById } from "../models/db.js";
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const getSecret = () => {
+  if (!process.env.JWT_SECRET) {
+    console.warn("JWT_SECRET not set in environment variables.");
+    return "default_secret";
+  }
+  return process.env.JWT_SECRET;
+}
 
 export const register = async (req, res) => {
   const { email, pass, name } = req.body;
@@ -36,7 +42,7 @@ export const login = async (req, res) => {
     if (!bcrypt.compareSync(pass, user.password)) {
       return res.status(400).json({ message: "Invalid login" });
     }
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
+    const token = jwt.sign({ id: user.id, email: user.email }, getSecret(), {
       expiresIn: "30m",
     });
 
