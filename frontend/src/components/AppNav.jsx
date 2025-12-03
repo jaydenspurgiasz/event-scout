@@ -8,12 +8,6 @@ export default function AppNav({ currentPage, onPageChange }) {
         Discover
       </button>
       <button 
-        className={`nav-button ${currentPage === 'create' ? 'active' : ''}`}
-        onClick={() => onPageChange('create')}
-      >
-        Create
-      </button>
-      <button 
         className={`nav-button ${currentPage === 'profile' ? 'active' : ''}`}
         onClick={() => onPageChange('profile')}
       >

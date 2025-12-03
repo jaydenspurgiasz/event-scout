@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import formatDate from "../utils/formatDate";
 import EventDetail from "./EventDetail";
+import CreateEvent from './CreateEvent';
 import { eventsAPI } from '../api';
 
 export default function EventsList() {
@@ -8,6 +9,7 @@ export default function EventsList() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [showCreateEvent, setShowCreateEvent] = useState(false);
 
   useEffect(() => {
     loadEvents();
@@ -59,6 +61,11 @@ export default function EventsList() {
         Refresh
       </button>
 
+      <button onClick={() => setShowCreateEvent(!showCreateEvent)} disabled={loading}>
+        Create Event
+      </button>
+
+      {showCreateEvent && <CreateEvent />}
       {loading && <p>Loading events...</p>}
       {!loading && !error && events.length === 0 && <p>No events yet.</p>}
 

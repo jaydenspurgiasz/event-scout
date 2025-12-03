@@ -24,7 +24,6 @@ export default function HomePage() {
       </header>
       <main className="app-main">
         {page === 'home' && <EventsList />}
-        {page === 'create' && <CreateEvent />}
       </main>
       <AppNav 
         currentPage={page} 
