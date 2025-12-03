@@ -14,6 +14,9 @@ jest.unstable_mockModule('../models/db.js', () => ({
   getAllEvents: jest.fn(),
   getEventById: jest.fn(),
   getEventsByTitle: jest.fn(),
+  addUserToEvent: jest.fn(),
+  removeUserFromEvent: jest.fn(),
+  getAllEventParticipants: jest.fn(),
   sendFriendRequest: jest.fn(),
   acceptFriendRequest: jest.fn(),
   rejectFriendRequest: jest.fn(),
@@ -237,17 +240,30 @@ describe('API Routes', () => {
       expect(response.body).toEqual([{ id: 1, title: 'Event 1' }, { id: 2, title: 'Event 2' }]);
     });
 
-    // Should return event by ID for authenticated user
-    test('GET /api/event/:id - get event by ID', async () => {
+    // Should return event by ID without authentication
+    test('GET /api/event/event/:id - get event by ID without auth', async () => {
+      db.getEventById.mockResolvedValue({ id: 1, title: 'Test Event' });
+
+      const response = await request(app)
+        .get('/api/event/event/1');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ id: 1, title: 'Test Event' });
+      expect(db.getEventById).toHaveBeenCalledWith('1', null);
+    });
+
+    // Should return event by ID with authentication
+    test('GET /api/event/event/:id - get event by ID with auth', async () => {
       jwt.verify.mockReturnValue({ id: 1, email: 'test@example.com' });
       db.getEventById.mockResolvedValue({ id: 1, title: 'Test Event' });
 
       const response = await request(app)
-        .get('/api/event/1')
+        .get('/api/event/event/1')
         .set('Cookie', 'token=mock_token');
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ id: 1, title: 'Test Event' });
+      expect(db.getEventById).toHaveBeenCalledWith('1', 1);
     });
 
     // Should return events matching title search
@@ -262,6 +278,125 @@ describe('API Routes', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual([{ id: 1, title: 'Test Event' }]);
+    });
+
+    // Should RSVP authenticated user to event
+    test('POST /api/event/:id/rsvp - RSVP to event', async () => {
+      jwt.verify.mockReturnValue({ id: 1, email: 'test@example.com' });
+      db.addUserToEvent.mockResolvedValue();
+
+      const response = await request(app)
+        .post('/api/event/123/rsvp')
+        .set('Cookie', 'token=mock_token');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ message: 'RSVPed user to event.' });
+      expect(db.addUserToEvent).toHaveBeenCalledWith(1, '123');
+    });
+
+    // Should fail to RSVP without authentication
+    test('POST /api/event/:id/rsvp - fail without auth', async () => {
+      const response = await request(app)
+        .post('/api/event/123/rsvp');
+
+      expect(response.status).toBe(401);
+    });
+
+    // Should handle RSVP errors
+    test('POST /api/event/:id/rsvp - handle errors', async () => {
+      jwt.verify.mockReturnValue({ id: 1, email: 'test@example.com' });
+      db.addUserToEvent.mockRejectedValue(new Error('Event not found.'));
+
+      const response = await request(app)
+        .post('/api/event/123/rsvp')
+        .set('Cookie', 'token=mock_token');
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({ error: 'Event not found.' });
+    });
+
+    // Should unRSVP authenticated user from event
+    test('DELETE /api/event/:id/rsvp - unRSVP from event', async () => {
+      jwt.verify.mockReturnValue({ id: 1, email: 'test@example.com' });
+      db.removeUserFromEvent.mockResolvedValue();
+
+      const response = await request(app)
+        .delete('/api/event/123/rsvp')
+        .set('Cookie', 'token=mock_token');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ message: 'unRSVPed user from event.' });
+      expect(db.removeUserFromEvent).toHaveBeenCalledWith(1, '123');
+    });
+
+    // Should fail to unRSVP without authentication
+    test('DELETE /api/event/:id/rsvp - fail without auth', async () => {
+      const response = await request(app)
+        .delete('/api/event/123/rsvp');
+
+      expect(response.status).toBe(401);
+    });
+
+    // Should handle unRSVP errors
+    test('DELETE /api/event/:id/rsvp - handle errors', async () => {
+      jwt.verify.mockReturnValue({ id: 1, email: 'test@example.com' });
+      db.removeUserFromEvent.mockRejectedValue(new Error('Database error'));
+
+      const response = await request(app)
+        .delete('/api/event/123/rsvp')
+        .set('Cookie', 'token=mock_token');
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({ error: 'Database error' });
+    });
+
+    // Should get event participants without authentication
+    test('GET /api/event/event/:id/participants - get participants without auth', async () => {
+      db.getAllEventParticipants.mockResolvedValue([
+        { id: 2, email: 'user2@example.com', first_name: 'John', created_at: '2025-01-01' },
+        { id: 3, email: 'user3@example.com', first_name: 'Jane', created_at: '2025-01-02' }
+      ]);
+
+      const response = await request(app)
+        .get('/api/event/event/123/participants');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual([
+        { id: 2, email: 'user2@example.com', first_name: 'John', created_at: '2025-01-01' },
+        { id: 3, email: 'user3@example.com', first_name: 'Jane', created_at: '2025-01-02' }
+      ]);
+      expect(db.getAllEventParticipants).toHaveBeenCalledWith(null, '123');
+    });
+
+    // Should get event participants with authentication
+    test('GET /api/event/event/:id/participants - get participants with auth', async () => {
+      jwt.verify.mockReturnValue({ id: 1, email: 'test@example.com' });
+      db.getAllEventParticipants.mockResolvedValue([
+        { id: 2, email: 'user2@example.com', first_name: 'John', created_at: '2025-01-01' },
+        { id: 3, email: 'user3@example.com', first_name: 'Jane', created_at: '2025-01-02' }
+      ]);
+
+      const response = await request(app)
+        .get('/api/event/event/123/participants')
+        .set('Cookie', 'token=mock_token');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual([
+        { id: 2, email: 'user2@example.com', first_name: 'John', created_at: '2025-01-01' },
+        { id: 3, email: 'user3@example.com', first_name: 'Jane', created_at: '2025-01-02' }
+      ]);
+      expect(db.getAllEventParticipants).toHaveBeenCalledWith(1, '123');
+    });
+
+    // Should handle get participants errors
+    test('GET /api/event/event/:id/participants - handle errors', async () => {
+      db.getAllEventParticipants.mockRejectedValue(new Error('Event not found.'));
+
+      const response = await request(app)
+        .get('/api/event/event/123/participants');
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({ error: 'Event not found.' });
     });
   });
 

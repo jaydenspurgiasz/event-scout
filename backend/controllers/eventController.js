@@ -1,5 +1,4 @@
-import { createEvent, getPublicEvents, getAllEvents, getEventById, getEventsByTitle } from "../models/db.js";
-import db from "../config/database.js";
+import { createEvent, getPublicEvents, getAllEvents, getEventById, getEventsByTitle, addUserToEvent, removeUserFromEvent, getAllEventParticipants } from "../models/db.js";
 
 export const addEvent = async (req, res) => {
     const { id } = req.user;
@@ -53,43 +52,38 @@ export const searchEventsByTitle = async (req, res) => {
     }
 };
 
-export const getEventDetails = (req, res) => {
-  const { id } = req.params;
+export const getEventParticipants = async (req, res) => {
+  const id = req.user.id;
+  const eventId = req.params.id;
   
-  db.get(
-    "SELECT id, title, description FROM events WHERE id = ?",
-    [id],
-    (err, event) => {
-      if (err) {
-        return res.status(500).json({ message: "Error: could not retrieve event details" });
-      }
-      if (!event) {
-        return res.status(404).json({ message: "No event found" });
-      }
-      res.status(200).json({
-        id: event.id,
-        name: event.title,
-        description: event.description
-      });
-    }
-  );
+  try {
+    const participants = await getAllEventParticipants(id, eventId);
+    res.status(200).json(participants);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
-export const getEventParticipants = (req, res) => {
-  const { id } = req.params;
-  
-  db.all(
-    `SELECT p.id, p.user_id, p.created_at, u.email 
-     FROM participants p
-     JOIN users u ON p.user_id = u.id
-     WHERE p.event_id = ?
-     ORDER BY p.created_at ASC`,
-    [id],
-    (err, participants) => {
-      if (err) {
-        return res.status(500).json({ message: "Error: could not retrieve event participants" });
-      }
-      res.status(200).json({ participants: participants || [] });
+export const rsvpUserToEvent = async (req, res) => {
+    const { id } = req.user;
+    const eventId = req.params.id;
+    
+    try {
+        await addUserToEvent(id, eventId);
+        res.status(200).json({ message: "RSVPed user to event." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
-  );
+};
+
+export const unRsvpUserFromEvent = async (req, res) => {
+    const { id } = req.user;
+    const eventId = req.params.id;
+    
+    try {
+        await removeUserFromEvent(id, eventId);
+        res.status(200).json({ message: "unRSVPed user from event." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 };
