@@ -67,3 +67,48 @@ export const authAPI = {
     });
   },
 };
+
+export const eventsAPI = {
+  create: async (title, description, date, location, priv) => {
+    return apiRequest('/event/create', {
+      method: 'POST',
+      body: JSON.stringify({
+        title,
+        description,
+        date,
+        location,
+        priv
+      })
+    });
+  },
+
+  search: async () => {
+    return apiRequest('/event/search', {
+      method: 'GET',
+    });
+  },
+
+  getById: async (eventId) => {
+    return apiRequest(`/event/${eventId}`, {
+      method: 'GET',
+    });
+  },
+
+  getParticipants: async (eventId) => {
+    return apiRequest(`/event/${eventId}/participants`, {
+      method: 'GET',
+    });
+  },
+
+  rsvp: async (eventId) => {
+    return apiRequest(`/event/${eventId}/rsvp`, {
+      method: 'POST',
+    });
+  },
+
+  unrsvp: async (eventId) => {
+    return apiRequest(`/event/${eventId}/rsvp`, {
+      method: 'DELETE',
+    });
+  },
+};
