@@ -185,17 +185,65 @@ export const getEventById = (id, userID) => {
 // Get events by title
 export const getEventsByTitle = (title, userID) => {
   return new Promise((resolve, reject) => {
-    db.all("SELECT * FROM events WHERE title = ?", [title], (err, row) => {
-      if (err) reject(err);
-      else resolve(row);
-    });
+    if (!userID) {
+      // If no user ID, only return public events
+      db.all("SELECT * FROM events WHERE title = ? AND NOT private", [title], (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      });
+    } else {
+      // If user ID provided, return public events or events from friends or own events
+      const sql = `
+        SELECT DISTINCT
+          e.*
+        FROM
+          events e
+        LEFT JOIN
+          friends f ON (f.user_id = e.user_id AND f.friend_id = ?) OR (f.friend_id = e.user_id AND f.user_id = ?)
+        WHERE
+          e.title = ?
+          AND (
+            NOT e.private
+            OR f.user_id IS NOT NULL
+            OR e.user_id = ?
+          )
+      `;
+      db.all(sql, [userID, userID, title, userID], (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      });
+    }
   });
 }
 
+// Get participants by event ID
+export const getParticipantsByEventId = (eventId) => {
+  return new Promise((resolve, reject) => {
+    db.all(
+      `SELECT 
+        p.id,
+        p.user_id,
+        p.created_at,
+        u.email,
+        u.first_name,
+        u.last_name
+      FROM participants p
+      JOIN users u ON p.user_id = u.id
+      WHERE p.event_id = ?
+      ORDER BY p.created_at ASC`,
+      [eventId],
+      (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      }
+    );
+  });
+};
+
 /*
-
+ 
 Friend Methods
-
+ 
 */
 
 
