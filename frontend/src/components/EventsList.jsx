@@ -50,6 +50,18 @@ export default function EventsList() {
     );
   }
 
+  if (showCreateEvent) {
+    return (
+      <CreateEvent 
+        onCancel={() => setShowCreateEvent(false)}
+        onSuccess={() => {
+          setShowCreateEvent(false);
+          handleRefresh();
+        }}
+      />
+    );
+  }
+
   if (!events) {
     events = [];
   }
@@ -57,15 +69,15 @@ export default function EventsList() {
   return (
     <div className="events-page">
       <h2>Discover</h2>
-      <button onClick={handleRefresh} disabled={loading}>
-        Refresh
-      </button>
+      <div>
+        <button onClick={handleRefresh} disabled={loading}>
+          Refresh
+        </button>
+        <button onClick={() => setShowCreateEvent(true)} disabled={loading}>
+          Create Event
+        </button>
+      </div>
 
-      <button onClick={() => setShowCreateEvent(!showCreateEvent)} disabled={loading}>
-        Create Event
-      </button>
-
-      {showCreateEvent && <CreateEvent />}
       {loading && <p>Loading events...</p>}
       {!loading && !error && events.length === 0 && <p>No events yet.</p>}
 
