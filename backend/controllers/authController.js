@@ -1,26 +1,26 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { createUser, getUserByEmail, getUserById } from "../models/db.js";
+import { createUser, getAuthCredentials, getUserById } from "../models/db.js";
 
-const JWT_SECRET = process.env.JWT_SECRET || "default_secret_key_change_in_production";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export const register = async (req, res) => {
-  const { email, pass, firstName, lastName } = req.body;
+  const { email, pass, name } = req.body;
   
-  if (!email || !pass || !firstName) {
-    return res.status(400).json({ message: "Missing required fields" });
+  if (!email || !pass || !name) {
+    return res.status(400).json({ message: "Missing fields" });
   }
   
   try {
     const hashedPass = bcrypt.hashSync(pass, 10);
-    await createUser(email, hashedPass, firstName, lastName || "");
+    await createUser(email, hashedPass, name);
     res.status(200).json({ message: "User created" });
   } catch (err) {
-    console.error("Register error:", err);
-    if (err.message && err.message.includes("UNIQUE constraint")) {
+    if (err.message && err.message.includes("UNIQUE")) {
       return res.status(400).json({ message: "Email already in use" });
     }
-    res.status(500).json({ message: "Server error", error: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Server error"});
   }
 };
 
@@ -28,13 +28,13 @@ export const login = async (req, res) => {
   const { email, pass } = req.body;
   
   try {
-    const user = await getUserByEmail(email);
+    const user = await getAuthCredentials(email);
     
     if (!user) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(400).json({ message: "Invalid login" });
     }
     if (!bcrypt.compareSync(pass, user.password)) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(400).json({ message: "Invalid login" });
     }
     const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
       expiresIn: "30m",
@@ -48,8 +48,8 @@ export const login = async (req, res) => {
     });
     res.status(200).json({ message: "Login successful" });
   } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ message: "Server error", error: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Server error"});
   }
 };
 
@@ -73,12 +73,11 @@ export const verify = async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name
+        name: user.name
       }
     });
   } catch (err) {
-    console.error("Verify error:", err);
-    res.status(500).json({ message: "Server error", error: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Server error"});
   }
 };

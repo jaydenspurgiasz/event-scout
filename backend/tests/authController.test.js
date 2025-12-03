@@ -3,6 +3,8 @@ import { jest } from '@jest/globals';
 jest.unstable_mockModule('../models/db.js', () => ({
   createUser: jest.fn(),
   getUserByEmail: jest.fn(),
+  getUserById: jest.fn(),
+  getAuthCredentials: jest.fn(),
 }));
 
 jest.unstable_mockModule('bcrypt', () => ({
@@ -18,7 +20,7 @@ jest.unstable_mockModule('jsonwebtoken', () => ({
   }
 }));
 
-const { createUser, getUserByEmail } = await import('../models/db.js');
+const { createUser, getUserByEmail, getAuthCredentials } = await import('../models/db.js');
 const bcrypt = (await import("bcrypt")).default;
 const jwt = (await import("jsonwebtoken")).default;
 const { register, login } = await import('../controllers/authController.js');
@@ -42,8 +44,7 @@ describe('Auth Controller', () => {
       req.body = {
         email: 'test@example.com',
         pass: 'password123',
-        firstName: 'John',
-        lastName: 'Doe'
+        name: 'John'
       };
       createUser.mockResolvedValue(1);
 
@@ -53,8 +54,7 @@ describe('Auth Controller', () => {
       expect(createUser).toHaveBeenCalledWith(
         'test@example.com',
         'hashed_password',
-        'John',
-        'Doe'
+        'John'
       );
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({ message: 'User created' });
@@ -64,9 +64,10 @@ describe('Auth Controller', () => {
     test('Register Existing User', async () => {
       req.body = {
         email: 'existing@example.com',
-        pass: 'password123'
+        pass: 'password123',
+        name: 'Jane'
       };
-      createUser.mockRejectedValue(new Error('Email exists'));
+      createUser.mockRejectedValue(new Error('UNIQUE constraint failed'));
 
       await register(req, res);
 
@@ -87,17 +88,17 @@ describe('Auth Controller', () => {
         email: 'test@example.com',
         password: 'hashed_password'
       };
-      getUserByEmail.mockResolvedValue(mockUser);
+      getAuthCredentials.mockResolvedValue(mockUser);
       bcrypt.compareSync.mockReturnValue(true);
 
       await login(req, res);
 
-      expect(getUserByEmail).toHaveBeenCalledWith('test@example.com');
+      expect(getAuthCredentials).toHaveBeenCalledWith('test@example.com');
       expect(bcrypt.compareSync).toHaveBeenCalledWith('password123', 'hashed_password');
       expect(jwt.sign).toHaveBeenCalled();
       expect(res.cookie).toHaveBeenCalledWith('token', 'mock_token', {
         httpOnly: true,
-        secure: true,
+        secure: false,
         sameSite: 'strict',
         maxAge: 1800000
       });
@@ -111,12 +112,12 @@ describe('Auth Controller', () => {
         email: 'nonexistent@example.com',
         pass: 'password123'
       };
-      getUserByEmail.mockResolvedValue(undefined);
+      getAuthCredentials.mockResolvedValue(undefined);
 
       await login(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Invalid email or password' });
+      expect(res.json).toHaveBeenCalledWith({ message: 'Invalid login' });
     });
 
     // Reject login when password is incorrect
@@ -130,13 +131,13 @@ describe('Auth Controller', () => {
         email: 'test@example.com',
         password: 'hashed_password'
       };
-      getUserByEmail.mockResolvedValue(mockUser);
+      getAuthCredentials.mockResolvedValue(mockUser);
       bcrypt.compareSync.mockReturnValue(false);
 
       await login(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Invalid email or password' });
+      expect(res.json).toHaveBeenCalledWith({ message: 'Invalid login' });
     });
 
     // Handle database errors during login
@@ -145,7 +146,7 @@ describe('Auth Controller', () => {
         email: 'test@example.com',
         pass: 'password123'
       };
-      getUserByEmail.mockRejectedValue(new Error('DB Error'));
+      getAuthCredentials.mockRejectedValue(new Error('DB Error'));
 
       await login(req, res);
 

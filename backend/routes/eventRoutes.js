@@ -1,5 +1,5 @@
 import express from "express";
-import {addEvent, searchEvents, searchEventById, searchEventsByTitle, getEventParticipants, rsvpUserToEvent, unRsvpUserFromEvent} from "../controllers/eventController.js";
+import {addEvent, searchEvents, searchEventById, searchEventsByTitle, getEventParticipants, rsvpUserToEvent, unRsvpUserFromEvent, getRsvpedEvents} from "../controllers/eventController.js";
 import {protect, optionalAuth} from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -24,5 +24,8 @@ router.get("/:id", optionalAuth, searchEventById);
 
 // Get event participants by ID
 router.get("/:id/participants", optionalAuth, getEventParticipants);
+
+// Get events the user is RSVPed to
+router.get("/attending/:id", protect, getRsvpedEvents);
 
 export default router;

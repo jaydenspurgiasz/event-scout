@@ -46,7 +46,7 @@ describe('Database Operations', () => {
       const user = await getUserByEmail('test@example.com');
       expect(user).toBeDefined();
       expect(user.email).toBe('test@example.com');
-      expect(user.first_name).toBe('John');
+      expect(user.name).toBe('John');
     });
 
     // Return undefined for non-existent user
