@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import formatDate from "../utils/formatDate";
 import EventDetail from "./EventDetail";
 import { eventsAPI } from '../api';
+import { mockEvents } from '../data/mockEvents';
 
 export default function EventsList({ searchQuery = '' }) {
   const [events, setEvents] = useState([]);
@@ -22,6 +23,10 @@ export default function EventsList({ searchQuery = '' }) {
     } catch (err) {
       console.log('error loading events:', err);
       setError(err.message);
+      // Fallback to mock events if backend is unreachable or returns error
+      if (!events || events.length === 0) {
+        setEvents(mockEvents);
+      }
     }
     setLoading(false);
   }
