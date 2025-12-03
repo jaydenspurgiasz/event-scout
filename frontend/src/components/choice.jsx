@@ -1,4 +1,4 @@
-export default function choice({ setView }) {
+export default function Choice({ setView }) {
     return (
       <div className="container">
         <div className="card">

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export function settingsMenu({setView}) {
+export function SettingsMenu({setView}) {
     return (
       <div className="container">
         <div className="card">
@@ -23,7 +23,7 @@ export function settingsMenu({setView}) {
     );
 }
 
-export function changeEmail({setView, currentPassword, onChangeEmail}) {
+export function ChangeEmail({setView, currentPassword, onChangeEmail}) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -78,7 +78,7 @@ export function changeEmail({setView, currentPassword, onChangeEmail}) {
     );
 }
 
-export function changePassword({setView, currentPassword, onChangePassword}) {
+export function ChangePassword({setView, currentPassword, onChangePassword}) {
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
 
