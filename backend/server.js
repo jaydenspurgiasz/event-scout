@@ -3,10 +3,9 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import dotenv from "dotenv";
-
-import authRoutes from "./routes/authRoutes.js";
-import eventRoutes from "./routes/eventRoutes.js";
+import apiRoutes from "./routes/apiRoutes.js";
 import { initializeDatabase } from "./models/db.js";
+import cookieParser from "cookie-parser";
 import { saveMessage, getMessages } from "./controllers/messageController.js";
 
 dotenv.config();
@@ -28,14 +27,18 @@ const io = new Server(httpServer, {
 // Middleware
 app.use(express.json());
 app.use(cors(allowed));
+app.use(cookieParser());
 
 // Routes
 app.get("/", (req, res) => {
   res.send("Hello, World!");
 });
 
-app.use("/api", authRoutes);
-app.use("/api", eventRoutes);
+app.get("/health", (req, res) => {
+  res.send("Server is running");
+});
+
+app.use("/api", apiRoutes);
 
 // WebSocket connection handling
 io.on("connection", (socket) => {
@@ -81,7 +84,7 @@ io.on("connection", (socket) => {
   });
 });
 
-const startServer = async() => {
+const startServer = async () => {
   try {
     await initializeDatabase();
     httpServer.listen(PORT, () => {
