@@ -41,6 +41,8 @@ function App() {
     }
   ];
 
+  const [loggedIn, setLoggedIn] = useState(false);
+
   const handleLogin = (loginEmail, loginPassword) => {
     setEmail(loginEmail);
     setPassword(loginPassword);
@@ -70,13 +72,13 @@ function App() {
     }
   };
 
-  if (!isAuthenticated) {
+  if (!loggedIn) {
     switch (view) {
       case "choice":
         return <Choice setView={setView} />;
 
       case "login":
-        return <Login setView={setView} onLogin={handleLogin} />;
+        return <Login setView={setView} onLogin={handleLogin} isLoggedIn={setLoggedIn}/>;
 
       case "register":
         return <Register setView={setView} onRegister={handleRegister} />;
@@ -129,6 +131,7 @@ function App() {
           onSendMessage={handleSendMessage}
         />
       );
+    
 
     case "home":
     default:

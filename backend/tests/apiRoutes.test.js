@@ -148,10 +148,12 @@ describe('API Routes', () => {
   describe('User Routes', () => {
     // Should return user ID by email
     test('POST /api/user/search/email - user found', async () => {
+      jwt.verify.mockReturnValue({ id: 1, email: 'test@example.com' });
       db.getUserByEmail.mockResolvedValue({ id: 1 });
 
       const response = await request(app)
         .post('/api/user/search/email')
+        .set('Cookie', 'token=mock_token')
         .send({ email: 'test@example.com' });
 
       expect(response.status).toBe(200);
@@ -160,10 +162,12 @@ describe('API Routes', () => {
 
     // Should return 404 when user not found by email
     test('POST /api/user/search/email - user not found', async () => {
+      jwt.verify.mockReturnValue({ id: 1, email: 'test@example.com' });
       db.getUserByEmail.mockResolvedValue(null);
 
       const response = await request(app)
         .post('/api/user/search/email')
+        .set('Cookie', 'token=mock_token')
         .send({ email: 'nonexistent@example.com' });
 
       expect(response.status).toBe(404);
@@ -172,10 +176,12 @@ describe('API Routes', () => {
 
     // Should return array of user IDs by name
     test('POST /api/user/search/name - users found', async () => {
+      jwt.verify.mockReturnValue({ id: 1, email: 'test@example.com' });
       db.getUsersByName.mockResolvedValue([{ id: 1 }, { id: 2 }]);
 
       const response = await request(app)
         .post('/api/user/search/name')
+        .set('Cookie', 'token=mock_token')
         .send({ name: 'John' });
 
       expect(response.status).toBe(200);
@@ -184,10 +190,12 @@ describe('API Routes', () => {
 
     // Should return 404 when no users found by name
     test('POST /api/user/search/name - users not found', async () => {
+      jwt.verify.mockReturnValue({ id: 1, email: 'test@example.com' });
       db.getUsersByName.mockResolvedValue(null);
 
       const response = await request(app)
         .post('/api/user/search/name')
+        .set('Cookie', 'token=mock_token')
         .send({ name: 'NonexistentName' });
 
       expect(response.status).toBe(404);
@@ -241,11 +249,11 @@ describe('API Routes', () => {
     });
 
     // Should return event by ID without authentication
-    test('GET /api/event/event/:id - get event by ID without auth', async () => {
+    test('GET /api/event/:id - get event by ID without auth', async () => {
       db.getEventById.mockResolvedValue({ id: 1, title: 'Test Event' });
 
       const response = await request(app)
-        .get('/api/event/event/1');
+        .get('/api/event/1');
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ id: 1, title: 'Test Event' });
@@ -253,12 +261,12 @@ describe('API Routes', () => {
     });
 
     // Should return event by ID with authentication
-    test('GET /api/event/event/:id - get event by ID with auth', async () => {
+    test('GET /api/event/:id - get event by ID with auth', async () => {
       jwt.verify.mockReturnValue({ id: 1, email: 'test@example.com' });
       db.getEventById.mockResolvedValue({ id: 1, title: 'Test Event' });
 
       const response = await request(app)
-        .get('/api/event/event/1')
+        .get('/api/event/1')
         .set('Cookie', 'token=mock_token');
 
       expect(response.status).toBe(200);
@@ -351,14 +359,14 @@ describe('API Routes', () => {
     });
 
     // Should get event participants without authentication
-    test('GET /api/event/event/:id/participants - get participants without auth', async () => {
+    test('GET /api/event/:id/participants - get participants without auth', async () => {
       db.getAllEventParticipants.mockResolvedValue([
         { id: 2, email: 'user2@example.com', first_name: 'John', created_at: '2025-01-01' },
         { id: 3, email: 'user3@example.com', first_name: 'Jane', created_at: '2025-01-02' }
       ]);
 
       const response = await request(app)
-        .get('/api/event/event/123/participants');
+        .get('/api/event/123/participants');
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual([
@@ -369,7 +377,7 @@ describe('API Routes', () => {
     });
 
     // Should get event participants with authentication
-    test('GET /api/event/event/:id/participants - get participants with auth', async () => {
+    test('GET /api/event/:id/participants - get participants with auth', async () => {
       jwt.verify.mockReturnValue({ id: 1, email: 'test@example.com' });
       db.getAllEventParticipants.mockResolvedValue([
         { id: 2, email: 'user2@example.com', first_name: 'John', created_at: '2025-01-01' },
@@ -377,7 +385,7 @@ describe('API Routes', () => {
       ]);
 
       const response = await request(app)
-        .get('/api/event/event/123/participants')
+        .get('/api/event/123/participants')
         .set('Cookie', 'token=mock_token');
 
       expect(response.status).toBe(200);
@@ -389,11 +397,11 @@ describe('API Routes', () => {
     });
 
     // Should handle get participants errors
-    test('GET /api/event/event/:id/participants - handle errors', async () => {
+    test('GET /api/event/:id/participants - handle errors', async () => {
       db.getAllEventParticipants.mockRejectedValue(new Error('Event not found.'));
 
       const response = await request(app)
-        .get('/api/event/event/123/participants');
+        .get('/api/event/123/participants');
 
       expect(response.status).toBe(500);
       expect(response.body).toEqual({ error: 'Event not found.' });

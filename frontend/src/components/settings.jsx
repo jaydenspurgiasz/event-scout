@@ -30,6 +30,7 @@ export function ChangeEmail({setView, currentPassword, onChangeEmail}) {
     const handleSubmit = () => {
         if(password === currentPassword){
             onChangeEmail(email);
+            setView("profile");
         }
     }
 
@@ -54,6 +55,7 @@ export function ChangeEmail({setView, currentPassword, onChangeEmail}) {
                   placeholder="you@example.com"
                   required
                   className="input"
+                  onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
                 />
               </div>
               <div className="input-group">
@@ -68,6 +70,7 @@ export function ChangeEmail({setView, currentPassword, onChangeEmail}) {
                   placeholder="••••••••"
                   required
                   className="input"
+                  onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
                 />
               </div>
               <button onClick={handleSubmit} className="button-submit">Change Email</button>
@@ -85,6 +88,7 @@ export function ChangePassword({setView, currentPassword, onChangePassword}) {
     const handleSubmit = () => {
         if(oldPassword === currentPassword){
             onChangePassword(newPassword);
+            setView("profile");
         }
     }
 
@@ -109,6 +113,7 @@ export function ChangePassword({setView, currentPassword, onChangePassword}) {
                   placeholder="••••••••"
                   required
                   className="input"
+                  onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
                 />
               </div>
               <div className="input-group">
@@ -123,6 +128,7 @@ export function ChangePassword({setView, currentPassword, onChangePassword}) {
                   placeholder="••••••••"
                   required
                   className="input"
+                  onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
                 />
               </div>
               <button onClick={handleSubmit} className="button-submit">Change Password</button>
