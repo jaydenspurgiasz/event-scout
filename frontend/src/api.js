@@ -18,7 +18,6 @@ async function apiRequest(endpoint, options = {}) {
     try {
       data = await response.json();
     } catch (jsonError) {
-      // If response is not JSON, use status text
       throw new Error(response.statusText || 'Request failed');
     }
     
