@@ -5,7 +5,7 @@ export default function AppNav({ currentPage, onPageChange, onHomeClick, onProfi
         className={`nav-button ${currentPage === 'home' ? 'active' : ''}`}
         onClick={onHomeClick}
       >
-        Home
+        Discover
       </button>
       <button 
         className={`nav-button ${currentPage === 'create' ? 'active' : ''}`}
