@@ -9,6 +9,7 @@ jest.unstable_mockModule('../models/db.js', () => ({
   addUserToEvent: jest.fn(),
   removeUserFromEvent: jest.fn(),
   getAllEventParticipants: jest.fn(),
+  getEventsUserIsAttending: jest.fn(),
 }));
 
 const {

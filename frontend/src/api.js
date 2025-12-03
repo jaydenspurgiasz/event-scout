@@ -33,12 +33,11 @@ async function apiRequest(endpoint, options = {}) {
 }
 
 export const authAPI = {
-  register: async (firstName, lastName, email, password) => {
+  register: async (name, email, password) => {
     return apiRequest('/auth/register', {
       method: 'POST',
       body: JSON.stringify({
-        firstName,
-        lastName,
+        name,
         email,
         pass: password,
       }),

@@ -8,7 +8,9 @@ import cookieParser from 'cookie-parser';
 jest.unstable_mockModule('../models/db.js', () => ({
   createUser: jest.fn(),
   getUserByEmail: jest.fn(),
+  getUserById: jest.fn(),
   getUsersByName: jest.fn(),
+  getAuthCredentials: jest.fn(),
   createEvent: jest.fn(),
   getPublicEvents: jest.fn(),
   getAllEvents: jest.fn(),
@@ -17,6 +19,7 @@ jest.unstable_mockModule('../models/db.js', () => ({
   addUserToEvent: jest.fn(),
   removeUserFromEvent: jest.fn(),
   getAllEventParticipants: jest.fn(),
+  getEventsUserIsAttending: jest.fn(),
   sendFriendRequest: jest.fn(),
   acceptFriendRequest: jest.fn(),
   rejectFriendRequest: jest.fn(),
@@ -64,8 +67,7 @@ describe('API Routes', () => {
         .send({
           email: 'test@example.com',
           pass: 'password123',
-          firstName: 'John',
-          lastName: 'Doe'
+          name: 'John'
         });
 
       expect(response.status).toBe(200);
@@ -74,15 +76,14 @@ describe('API Routes', () => {
 
     // Should reject registration with existing email
     test('POST /api/auth/register - email already exists', async () => {
-      db.createUser.mockRejectedValue(new Error('Email exists'));
+      db.createUser.mockRejectedValue(new Error('UNIQUE constraint failed'));
 
       const response = await request(app)
         .post('/api/auth/register')
         .send({
           email: 'existing@example.com',
           pass: 'password123',
-          firstName: 'Jane',
-          lastName: 'Doe'
+          name: 'Jane'
         });
 
       expect(response.status).toBe(400);
@@ -91,7 +92,7 @@ describe('API Routes', () => {
 
     // Should login successfully with valid credentials
     test('POST /api/auth/login - successful login', async () => {
-      db.getUserByEmail.mockResolvedValue({
+      db.getAuthCredentials.mockResolvedValue({
         id: 1,
         email: 'test@example.com',
         password: 'hashed_password'
@@ -111,7 +112,7 @@ describe('API Routes', () => {
 
     // Should reject login with invalid email
     test('POST /api/auth/login - invalid email', async () => {
-      db.getUserByEmail.mockResolvedValue(null);
+      db.getAuthCredentials.mockResolvedValue(null);
 
       const response = await request(app)
         .post('/api/auth/login')
@@ -121,12 +122,12 @@ describe('API Routes', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body).toEqual({ message: 'Invalid email or password' });
+      expect(response.body).toEqual({ message: 'Invalid login' });
     });
 
     // Should reject login with invalid password
     test('POST /api/auth/login - invalid password', async () => {
-      db.getUserByEmail.mockResolvedValue({
+      db.getAuthCredentials.mockResolvedValue({
         id: 1,
         email: 'test@example.com',
         password: 'hashed_password'
@@ -141,7 +142,7 @@ describe('API Routes', () => {
         });
 
       expect(response.status).toBe(400);
-      expect(response.body).toEqual({ message: 'Invalid email or password' });
+      expect(response.body).toEqual({ message: 'Invalid login' });
     });
   });
 
@@ -405,6 +406,46 @@ describe('API Routes', () => {
 
       expect(response.status).toBe(500);
       expect(response.body).toEqual({ error: 'Event not found.' });
+    });
+
+    // Should get events user is attending with authentication
+    test('GET /api/event/attending/:id - get events user is attending', async () => {
+      jwt.verify.mockReturnValue({ id: 1, email: 'test@example.com' });
+      db.getEventsUserIsAttending.mockResolvedValue([
+        { id: 1, title: 'Event 1', date: '2025-01-01' },
+        { id: 2, title: 'Event 2', date: '2025-02-01' }
+      ]);
+
+      const response = await request(app)
+        .get('/api/event/attending/2')
+        .set('Cookie', 'token=mock_token');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual([
+        { id: 1, title: 'Event 1', date: '2025-01-01' },
+        { id: 2, title: 'Event 2', date: '2025-02-01' }
+      ]);
+    });
+
+    // Should fail to get attending events without authentication
+    test('GET /api/event/attending/:id - fail without auth', async () => {
+      const response = await request(app)
+        .get('/api/event/attending/2');
+
+      expect(response.status).toBe(401);
+    });
+
+    // Should handle errors when getting events user is attending
+    test('GET /api/event/attending/:id - handle errors', async () => {
+      jwt.verify.mockReturnValue({ id: 1, email: 'test@example.com' });
+      db.getEventsUserIsAttending.mockRejectedValue(new Error('Database error'));
+
+      const response = await request(app)
+        .get('/api/event/attending/2')
+        .set('Cookie', 'token=mock_token');
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({ error: 'Database error' });
     });
   });
 

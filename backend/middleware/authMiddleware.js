@@ -1,9 +1,12 @@
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "default_secret_key_change_in_production";
 
-if (!process.env.JWT_SECRET) {
-  console.warn("WARNING: JWT_SECRET not set in environment variables. Using default secret.");
+const getSecret = () => {
+  if (!process.env.JWT_SECRET) {
+    console.warn("JWT_SECRET not set in environment variables.");
+    return "default_secret";
+  }
+  return process.env.JWT_SECRET;
 }
 
 export const protect = (req, res, next) => {
@@ -12,7 +15,7 @@ export const protect = (req, res, next) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, getSecret());
     req.user = { id: decoded.id };
     next();
   } catch (err) {
@@ -29,7 +32,7 @@ export const optionalAuth = (req, res, next) => {
     return next();
   }
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, getSecret());
     req.user.id = decoded.id;
   } catch (err) {
     console.error(err);

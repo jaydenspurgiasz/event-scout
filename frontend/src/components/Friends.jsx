@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 
-export default function Following(){
+export default function Friends(){
     const navigate = useNavigate();
     
     return (
@@ -10,7 +10,7 @@ export default function Following(){
             ← Back
           </button>
           <div className="form-header">
-            <h2 className="form-title">Following</h2>
+            <h2 className="form-title">Friends</h2>
           </div>
         </div>
       </div>

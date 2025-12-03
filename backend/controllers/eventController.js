@@ -1,4 +1,4 @@
-import { createEvent, getPublicEvents, getAllEvents, getEventById, getEventsByTitle, addUserToEvent, removeUserFromEvent, getAllEventParticipants } from "../models/db.js";
+import { createEvent, getPublicEvents, getAllEvents, getEventById, getEventsByTitle, addUserToEvent, removeUserFromEvent, getAllEventParticipants, getEventsUserIsAttending } from "../models/db.js";
 
 export const addEvent = async (req, res) => {
     const { id } = req.user;
@@ -86,6 +86,18 @@ export const unRsvpUserFromEvent = async (req, res) => {
     try {
         await removeUserFromEvent(id, eventId);
         res.status(200).json({ message: "unRSVPed user from event." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+export const getRsvpedEvents = async (req, res) => {
+    const { reqId } = req.user;
+    const { id } = req.params;
+    
+    try {
+        const events = await getEventsUserIsAttending(reqId, id);
+        res.status(200).json(events);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

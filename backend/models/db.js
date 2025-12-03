@@ -7,8 +7,7 @@ export const initializeDatabase = async () => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
-      first_name TEXT NOT NULL,
-      last_name TEXT,
+      name TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
     `CREATE TABLE IF NOT EXISTS events (
@@ -70,11 +69,11 @@ User Methods
 */
 
 // Add a user
-export const createUser = (email, password, firstName, lastName) => {
+export const createUser = (email, password, name) => {
   return new Promise((resolve, reject) => {
     db.run(
-      "INSERT INTO users (email, password, first_name, last_name) VALUES (?, ?, ?, ?)",
-      [email, password, firstName, lastName],
+      "INSERT INTO users (email, password, name) VALUES (?, ?, ?)",
+      [email, password, name],
       function (err) {
         if (err) reject(err);
         else resolve(this.lastID);
@@ -83,10 +82,20 @@ export const createUser = (email, password, firstName, lastName) => {
   });
 };
 
+// Get auth details for user (for login)
+export const getAuthCredentials = (email) => {
+  return new Promise((resolve, reject) => {
+    db.get("SELECT * FROM users WHERE email = ?", [email], (err, row) => {
+      if (err) reject(err);
+      else resolve(row);
+    });
+  });
+}
+
 // Get user by email
 export const getUserByEmail = (email) => {
   return new Promise((resolve, reject) => {
-    db.get("SELECT * FROM users WHERE email = ?", [email], (err, row) => {
+    db.get("SELECT id, email, name FROM users WHERE email = ?", [email], (err, row) => {
       if (err) reject(err);
       else resolve(row);
     });
@@ -96,7 +105,7 @@ export const getUserByEmail = (email) => {
 // Get user by ID
 export const getUserById = (id) => {
   return new Promise((resolve, reject) => {
-    db.get("SELECT id, email, first_name, last_name FROM users WHERE id = ?", [id], (err, row) => {
+    db.get("SELECT id, email, name FROM users WHERE id = ?", [id], (err, row) => {
       if (err) reject(err);
       else resolve(row);
     });
@@ -106,7 +115,7 @@ export const getUserById = (id) => {
 // Get users by name
 export const getUsersByName = (name) => {
   return new Promise((resolve, reject) => {
-    db.all("SELECT * FROM users WHERE first_name = ?", [name], (err, row) => {
+    db.all("SELECT id, email, name FROM users WHERE name = ?", [name], (err, row) => {
       if (err) reject(err);
       else resolve(row);
     });
@@ -277,6 +286,35 @@ export const removeUserFromEvent = (userId, eventId) => {
   });
 }
 
+// Check Events User is attending
+export const getEventsUserIsAttending = (reqId, userId) => {
+  return new Promise((resolve, reject) => {
+    db.all(
+      `SELECT 
+        e.*
+      FROM 
+        events e
+      INNER JOIN 
+        participants p ON e.id = p.event_id
+      LEFT JOIN 
+        friends f ON (f.user_id = e.user_id AND f.friend_id = ?) 
+                  OR (f.friend_id = e.user_id AND f.user_id = ?)
+      WHERE 
+        p.user_id = ?
+        AND (
+          NOT e.private
+          OR e.user_id = ?
+          OR f.user_id IS NOT NULL
+        )`,
+      [reqId, reqId, userId, reqId],
+      (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      }
+    );
+  });
+}
+
 // Check all users attending an event
 export const getAllEventParticipants = (requesterId, eventId) => {
   return new Promise((resolve, reject) => {
@@ -307,7 +345,7 @@ export const getAllEventParticipants = (requesterId, eventId) => {
         SELECT
           u.id,
           u.email,
-          u.first_name,
+          u.name,
           p.created_at
         FROM
           users u
@@ -433,10 +471,10 @@ export const deleteFriend = (userId, friendId) => {
 export const getFriends = (userId) => {
   return new Promise((resolve, reject) => {
   // Return all friends of the current user
-  // Should return each friend's: id, email, first_name, last_name(if exists), friended_at
+  // Should return each friend's: id, email, name, friended_at
   db.all(
     `SELECT
-      u.id, u.email, u.first_name, f.friended_at
+      u.id, u.email, u.name, f.friended_at
     FROM
       users u
     JOIN
@@ -461,7 +499,7 @@ export const getFriendRequests = (userId) => {
     `SELECT 
          f.user_id, 
          u.email, 
-         u.first_name, 
+         u.name, 
          f.status,
          f.friended_at
        FROM
