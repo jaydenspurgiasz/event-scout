@@ -7,8 +7,7 @@ import Choice from './components/Choice';
 import Login from './components/Login';
 import Register from './components/Register';
 import Profile from './components/Profile';
-import Followers from './components/Followers';
-import Following from './components/Following';
+import Following from './components/Friends';
 import { SettingsMenu, ChangeEmail, ChangePassword } from './components/Settings';
 import { ChatList, ChatRoom } from './components/Chat';
 import HomePage from './pages/HomePage';
@@ -52,12 +51,7 @@ function App() {
             <Profile />
           </ProtectedRoute>
         } />
-        <Route path="/followers" element={
-          <ProtectedRoute>
-            <Followers />
-          </ProtectedRoute>
-        } />
-        <Route path="/following" element={
+        <Route path="/friends" element={
           <ProtectedRoute>
             <Following />
           </ProtectedRoute>

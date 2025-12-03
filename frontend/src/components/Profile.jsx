@@ -28,13 +28,9 @@ export default function Profile() {
             </p>
           </div>
           <div className="profile-stats">
-            <button onClick={() => navigate("/followers")}>
+            <button onClick={() => navigate("/friends")} className="button-secondary">
+              <span className="stat-label">Friends: </span>
               <span className="stat-number">1</span>
-              <span className="stat-label"> followers</span>
-            </button>
-            <button onClick={() => navigate("/following")}>
-              <span className="stat-number">1</span>
-              <span className="stat-label"> following</span>
             </button>
           </div>
           <div className="event-section">
