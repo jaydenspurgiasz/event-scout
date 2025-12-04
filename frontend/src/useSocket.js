@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 
-const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || "http://localhost:3000";
+const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || "http://localhost:8000";
 
 export const useSocket = (eventId) => {
   const socketRef = useRef(null);
@@ -10,7 +10,8 @@ export const useSocket = (eventId) => {
     if (!eventId) return;
 
     socketRef.current = io(SOCKET_URL, {
-      transports: ["websocket"]
+      transports: ["websocket"],
+      withCredentials: true
     });
 
     const socket = socketRef.current;
