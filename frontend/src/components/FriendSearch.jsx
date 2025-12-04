@@ -112,7 +112,6 @@ export default function FriendSearch() {
                 <h3>
                    {user.name}
                 </h3>
-                <p className="user-email">{user.email}</p>
               </div>
               <button
                 onClick={() => handleAddFriend(user.id)}

@@ -106,7 +106,7 @@ export default function EventDetail({ event, onBack }) {
           {!loadingParticipants && !participantsError && participants.length > 0 && (
             <ul>
               {participants.map((p) => (
-                <li key={p.id}>{p.first_name || p.email}</li>
+                <li key={p.id}>{p.name}</li>
               ))}
             </ul>
           )}

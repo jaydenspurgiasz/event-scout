@@ -60,7 +60,6 @@ export default function FriendRequests() {
               <div key={req.user_id} className="event-card">
                 <div className="request-header user-info">
                   <h3>{req.name}</h3>
-                  <p className="user-email">{req.email}</p>
                 </div>
                 <div className="request-actions">
                   <button
