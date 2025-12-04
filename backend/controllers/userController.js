@@ -1,4 +1,4 @@
-import { getUserByEmail, getUsersByName } from "../models/db.js";
+import { getUserByEmail, getUsersByName, getAllUsers } from "../models/db.js";
 
 // Get a user ID by their email
 export const searchUserByEmail = async (req, res) => {
@@ -27,3 +27,12 @@ export const searchUsersByName = async (req, res) => {
         return res.status(500).json({ error: err.message });
     }
 };
+
+export const searchUsers = async (req, res) => {
+    try {
+        const rows = await getAllUsers();
+        return res.status(200).json(rows);
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+}
