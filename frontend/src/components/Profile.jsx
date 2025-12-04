@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect } from 'react';
-import { usersAPI, friendsAPI } from '../api';
+import { usersAPI, friendsAPI, eventsAPI } from '../api';
 
 export default function Profile() {
     const navigate = useNavigate();
