@@ -90,10 +90,10 @@ export default function EventDetail({ event, onBack, onEventsRefresh }) {
         {event.description && (
           <p><strong>About:</strong> {event.description}</p>
         )}
-
+        <div className='button-group'>
         <button
           onClick={handleRsvp}
-          disabled={rsvpLoading || loadingParticipants}
+          disabled={rsvpLoading || loadingParticipants} style={{ backgroundColor: '#4a90e2', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '0.375rem', padding: '10px 12px', width: '150px' }}
         >
           {rsvpLoading ? 'Saving...' : isAttending ? 'Leave Event' : 'Join Event'}
         </button>
@@ -101,10 +101,11 @@ export default function EventDetail({ event, onBack, onEventsRefresh }) {
         {/* Link to event-specific chat room */}
         <button
           className="chat-button"
-          onClick={() => navigate(`/chats/${event.id}`, { state: { title: event.title } })}
+          onClick={() => navigate(`/chats/${event.id}`, { state: { title: event.title } })} style={{ color: '#4a90e2', backgroundColor: 'white', borderColor: '#4a90e2', cursor: 'pointer', borderRadius: '0.375rem', padding: '10px 12px', width: '150px' }}
         >
           Open Chat
         </button>
+        </div>
 
         <div className="attendees-section">
           <h3>Who's Going ({participants.length})</h3>

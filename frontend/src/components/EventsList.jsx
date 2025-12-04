@@ -74,7 +74,7 @@ export default function EventsList() {
     <div className="events-page">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <h2 style={{ margin: 0 }}>Discover Events</h2>
-        <button onClick={() => setShowCreateEvent(true)} disabled={loading}>
+        <button onClick={() => setShowCreateEvent(true)} disabled={loading} style={{ backgroundColor: '#4a90e2', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '0.375rem', padding: '10px 12px' }}>
           Create Event
         </button>
       </div>
@@ -94,7 +94,7 @@ export default function EventsList() {
             fontSize: 16,
           }}
         />
-        <button onClick={() => loadEvents()} disabled={loading} style={{ padding: '10px 12px' }}>
+        <button onClick={() => loadEvents()} disabled={loading} style={{ backgroundColor: '#4a90e2', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '0.375rem', padding: '10px 12px' }}>
           Refresh
         </button>
       </div>
