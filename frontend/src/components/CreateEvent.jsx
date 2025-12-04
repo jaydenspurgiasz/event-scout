@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { eventsAPI } from "../api.js"
 
-export default function CreateEvent({ onCancel, onSuccess }) {
+export default function CreateEvent({ onBack, onSuccess }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [eventDate, setEventDate] = useState("");
@@ -38,8 +38,8 @@ export default function CreateEvent({ onCancel, onSuccess }) {
 
   return (
     <div className="create-page">
-      {onCancel && (
-        <button className="back-button" onClick={onCancel}>
+      {onBack && (
+        <button className="back-button" onClick={onBack}>
           ← Back
         </button>
       )}

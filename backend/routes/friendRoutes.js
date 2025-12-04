@@ -1,5 +1,5 @@
 import express from "express";
-import { sendRequest, acceptRequest, rejectRequest, removeFriend, getAllFriends, getRequests } from "../controllers/friendController.js";
+import { sendRequest, acceptRequest, rejectRequest, removeFriend, getAllFriends, getRequests, searchFriendsByName } from "../controllers/friendController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -23,5 +23,7 @@ router.get("/friends", getAllFriends);
 
 // Get friend requests
 router.get("/requests", getRequests);
+
+router.post("/search/name", searchFriendsByName);
 
 export default router;

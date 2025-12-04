@@ -112,29 +112,51 @@ export const eventsAPI = {
   },
 };
 
-export const usersAPI = {
-  getById: async (userId) => {
-    return apiRequest(`/user/${userId}`, {
-      method: 'GET',
-    });
-  },
-};
-
 export const friendsAPI = {
-  getFriends: async () => {
-    return apiRequest('/friends/friends', {
-      method: 'GET',
-    });
-  },
   sendRequest: async (friendId) => {
-    return apiRequest('/friends/send', {
+    return apiRequest('/friend/send', {
       method: 'POST',
-      body: JSON.stringify({ friendId }),
+      body: JSON.stringify({ friendId })
     });
   },
+
+  acceptRequest: async (friendId) => {
+    return apiRequest('/friend/accept', {
+      method: 'POST',
+      body: JSON.stringify({ friendId })
+    });
+  },
+
+  rejectRequest: async (friendId) => {
+    return apiRequest('/friend/reject', {
+      method: 'POST',
+      body: JSON.stringify({ friendId })
+    });
+  },
+
+  removeFriend: async (friendId) => {
+    return apiRequest('/friend/remove', {
+      method: 'POST',
+      body: JSON.stringify({ friendId })
+    });
+  },
+
+  getAllFriends: async () => {
+    return apiRequest('/friend/friends', {
+      method: 'GET'
+    });
+  },
+
   getRequests: async () => {
-    return apiRequest('/friends/requests', {
-      method: 'GET',
+    return apiRequest('/friend/requests', {
+      method: 'GET'
+    });
+  },
+
+  searchByName: async (name) => {
+    return apiRequest('/friend/search/name', {
+      method: 'POST',
+      body: JSON.stringify({ name })
     });
   }
 };

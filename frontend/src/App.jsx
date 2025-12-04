@@ -14,6 +14,8 @@ import HomePage from './pages/HomePage';
 import PublicRoute from './components/PublicRoute';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoadingScreen from './components/LoadingScreen';
+import FriendSearch from './components/FriendSearch';
+import FriendRequests from './components/FriendRequests';
 
 function App() {
   const { loading } = useAuth();
@@ -84,6 +86,16 @@ function App() {
         <Route path="/chats/:chatId" element={
           <ProtectedRoute>
             <ChatRoom />
+          </ProtectedRoute>
+        } />
+        <Route path="/friend-search" element={
+          <ProtectedRoute>
+            <FriendSearch />
+          </ProtectedRoute>
+        } />
+        <Route path="/friend-requests" element={
+          <ProtectedRoute>
+            <FriendRequests />
           </ProtectedRoute>
         } />
 

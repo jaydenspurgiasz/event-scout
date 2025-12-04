@@ -3,7 +3,7 @@ import formatDate from "../utils/formatDate";
 import { eventsAPI } from '../api';
 import { useAuth } from '../contexts/AuthContext';
 
-export default function EventDetail({ event, onBack, onEventsRefresh }) {
+export default function EventDetail({ event, onBack }) {
   const { user } = useAuth();
   const [participants, setParticipants] = useState([]);
   const [loadingParticipants, setLoadingParticipants] = useState(false);
@@ -50,9 +50,6 @@ export default function EventDetail({ event, onBack, onEventsRefresh }) {
       }
       const newParticipants = await eventsAPI.getParticipants(event.id);
       setParticipants(newParticipants);
-      if (onEventsRefresh) {
-        await onEventsRefresh();
-      }
     } catch (err) {
       console.log('rsvp error:', err);
       setParticipantsError(err.message);

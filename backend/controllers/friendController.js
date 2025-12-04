@@ -1,4 +1,4 @@
-import { sendFriendRequest, acceptFriendRequest, rejectFriendRequest, deleteFriend, getFriends, getFriendRequests } from "../models/db.js";
+import { sendFriendRequest, acceptFriendRequest, rejectFriendRequest, deleteFriend, getFriends, getFriendRequests, getUsersByName } from "../models/db.js";
 
 export const sendRequest = async (req, res) => {
     const id = req.user.id;
@@ -67,5 +67,24 @@ export const getRequests = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Failed to get friend requests" });
+    }
+};
+
+export const searchFriendsByName = async (req, res) => {
+    const {name} = req.body;
+    try {
+        const rows = await getUsersByName(name);
+        if (rows) {
+            const user = rows.map(row => ({
+                id: row.id,
+                first_name: row.first_name,
+                last_name: row.last_name,
+                email: row.email
+            }));
+            return res.status(200).json(user);
+        }
+        return res.status(404).json({ error: "Users not found" });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
     }
 };

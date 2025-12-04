@@ -6,6 +6,7 @@ import { usersAPI, friendsAPI } from '../api';
 export default function Profile() {
     const navigate = useNavigate();
     const { user } = useAuth();
+
     const { userId } = useParams();
     
     const [profile, setProfile] = useState(null);
@@ -50,6 +51,7 @@ export default function Profile() {
     if (!profile) {
         return <div className="container"><div className="card">User not found</div></div>;
     }
+
 
     return (
         <div className="container">
