@@ -32,6 +32,9 @@ export default function EventDetail({ event, onBack, onEventsRefresh }) {
     loadParticipants();
   }, [event]);
 
+  /**
+   * Toggle RSVP status: if user is already attending, remove them; otherwise add them.
+   */
   const handleRsvp = async () => {
     if (!event) return;
 
@@ -98,10 +101,9 @@ export default function EventDetail({ event, onBack, onEventsRefresh }) {
           {rsvpLoading ? 'Saving...' : isAttending ? 'Leave Event' : 'Join Event'}
         </button>
 
-        {/* Link to event-specific chat room */}
         <button
           className="chat-button"
-          onClick={() => navigate(`/chats/${event.id}`, { state: { title: event.title } })} style={{ color: '#4a90e2', backgroundColor: 'white', borderColor: '#4a90e2', cursor: 'pointer', borderRadius: '0.375rem', padding: '10px 12px', width: '150px' }}
+          onClick={() => navigate(`/chats/${event.id}`)} style={{ color: '#4a90e2', backgroundColor: 'white', borderColor: '#4a90e2', cursor: 'pointer', borderRadius: '0.375rem', padding: '10px 12px', width: '150px' }}
         >
           Open Chat
         </button>
