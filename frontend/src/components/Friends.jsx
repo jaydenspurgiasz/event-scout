@@ -56,8 +56,7 @@ export default function Friends(){
         </div>
 
         <div className="form-header">
-          <h2 className="form-title">My Friends</h2>
-          <p className="subtitle">{friends.length} Connections</p>
+          <h2 className="form-title">Friends</h2>
         </div>
 
         <div className="events-list">
@@ -67,8 +66,7 @@ export default function Friends(){
             friends.map((friend) => (
               <div key={friend.id} className="event-card card-flex">
                 <div className="user-info">
-                  <h3>{friend.first_name} {friend.last_name || ''}</h3>
-                  <p className="user-email">{friend.email}</p>
+                  <h3>{friend.name}</h3>
                 </div>
                 <button
                   onClick={() => handleRemoveFriend(friend.id)}

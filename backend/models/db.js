@@ -115,9 +115,18 @@ export const getUserById = (id) => {
 // Get users by name
 export const getUsersByName = (name) => {
   return new Promise((resolve, reject) => {
-    db.all("SELECT id, email, name FROM users WHERE name = ?", [name], (err, row) => {
+    db.all("SELECT id, email, name FROM users WHERE name = ?", [name], (err, rows) => {
       if (err) reject(err);
-      else resolve(row);
+      else resolve(rows);
+    });
+  });
+}
+
+export const getAllUsers = () => {
+  return new Promise((resolve, reject) => {
+    db.all("SELECT id, email, name FROM users", [], (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
     });
   });
 }

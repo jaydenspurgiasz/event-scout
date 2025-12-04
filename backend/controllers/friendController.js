@@ -85,16 +85,15 @@ export const searchFriendsByName = async (req, res) => {
     const {name} = req.body;
     try {
         const rows = await getUsersByName(name);
-        if (rows) {
-            const user = rows.map(row => ({
+        if (rows && rows.length > 0) {
+            const users = rows.map(row => ({
                 id: row.id,
-                first_name: row.first_name,
-                last_name: row.last_name,
-                email: row.email
+                email: row.email,
+                name: row.name
             }));
-            return res.status(200).json(user);
+            return res.status(200).json(users);
         }
-        return res.status(404).json({ error: "Users not found" });
+        return res.status(200).json([]);
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }

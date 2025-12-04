@@ -2,6 +2,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { usersAPI, friendsAPI } from '../api';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { friendsAPI } from '../api';
 
 export default function Profile() {
     const navigate = useNavigate();
@@ -70,6 +74,21 @@ export default function Profile() {
     if (!profile) {
         return <div className="container"><div className="card">User not found</div></div>;
     }
+
+    const [numFriends, setNumFriends] = useState(0);
+
+    useEffect(() => {
+      loadFriends();
+    }, []);
+
+    const loadFriends = async () => {
+      try {
+        const friendsData = await friendsAPI.getAllFriends();
+        setNumFriends(friendsData ? friendsData.length : 0);
+      } catch(err) {
+        console.log('error loading friends', err);
+      }
+    };
 
     return (
         <div className="container">
