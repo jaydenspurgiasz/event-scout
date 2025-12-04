@@ -15,12 +15,7 @@ export function ChatRoom() {
     const { chatId } = useParams();
     const [messageInput, setMessageInput] = useState("");
     const [messages, setMessages] = useState([]);
-    const [chatTitle, setChatTitle] = useState("");
-
-    useEffect(() => {
-      const fromState = location?.state && location.state.title;
-      setChatTitle(fromState || String(chatId));
-    }, [location?.state, chatId]);
+    const chatTitle = location?.state?.title || "";
 
     const handleSend = () => {
         if (messageInput.trim()) {
