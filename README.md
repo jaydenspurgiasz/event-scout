@@ -16,6 +16,14 @@ cd backend
 npm install
 ```
 
+Create a `.env` file in the backend directory:
+```bash
+PORT=8000
+NODE_ENV=development
+JWT_SECRET=your-secret-key-change-in-production
+CLIENT_URL=http://localhost:3002
+```
+
 ### 3. Frontend Setup
 
 Navigate to the frontend directory and install dependencies: 
@@ -23,6 +31,12 @@ Navigate to the frontend directory and install dependencies:
 ```bash
 cd ../frontend
 npm install
+```
+
+Create a `.env` file in the frontend directory:
+```bash
+REACT_APP_API_URL=http://localhost:8000
+PORT=3002
 ```
 
 ## To run the Application: 
@@ -34,12 +48,12 @@ To start the backend server
  ```bash
    cd backend
    ```
-4. Start the server:
+3. Start the server:
    ```bash
    npm start
    ```
-5. The backend server will start on **port 3001**
-6. You should see: `Server running on port 3001`
+4. The backend server will start on **port 8000**
+5. You should see: `Server running on port 8000`
 
 To start the frontend server
 1. Open a new terminal window (keep the backend running)
@@ -47,9 +61,9 @@ To start the frontend server
    ```bash
    cd frontend
    ```
-3. Start the development server on port 3002:
+3. Start the development server:
    ```bash
-   PORT=3002 npm start
+   npm start
    ```
 4. The frontend will automatically open in your browser at **http://localhost:3002**
 
