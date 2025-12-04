@@ -19,7 +19,7 @@ export const saveMessage = (eventId, userId, message, callback, database = db) =
 
 export const getMessages = (eventId, callback, database = db) => {
   database.all(
-    `SELECT m.id, m.message, m.created_at, u.email 
+    `SELECT m.id, m.message, m.created_at, u.email, u.name
      FROM messages m
      JOIN users u ON m.user_id = u.id
      WHERE m.event_id = ?
@@ -29,7 +29,7 @@ export const getMessages = (eventId, callback, database = db) => {
       if (err) {
         return callback(err, null);
       }
-      callback(null, messages || []);
+      callback(null, messages);
     }
   );
 };

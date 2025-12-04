@@ -1,11 +1,28 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { friendsAPI } from '../api';
 
 export default function Profile() {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const name = user ? `${user.firstName} ${user.lastName}` : '';
+    const name = user ? `${user.name}` : '';
     const email = user?.email || '';
+
+    const [numFriends, setNumFriends] = useState(0);
+
+    useEffect(() => {
+      loadFriends();
+    }, []);
+
+    const loadFriends = async () => {
+      try {
+        const friendsData = await friendsAPI.getAllFriends();
+        setNumFriends(friendsData ? friendsData.length : 0);
+      } catch(err) {
+        console.log('error loading friends', err);
+      }
+    };
 
     return (
       <div className="container">
@@ -29,8 +46,7 @@ export default function Profile() {
           </div>
           <div className="profile-stats">
             <button onClick={() => navigate("/friends")} className="button-secondary">
-              <span className="stat-label">Friends: </span>
-              <span className="stat-number">1</span>
+              <span className="stat-label">Friends: {numFriends} </span>
             </button>
           </div>
           <div className="event-section">

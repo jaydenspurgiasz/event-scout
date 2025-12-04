@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import formatDate from "../utils/formatDate";
 import { eventsAPI } from '../api';
 import { useAuth } from '../contexts/AuthContext';
 
-export default function EventDetail({ event, onBack }) {
+export default function EventDetail({ event, onBack, onEventsRefresh }) {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [participants, setParticipants] = useState([]);
   const [loadingParticipants, setLoadingParticipants] = useState(false);
@@ -94,6 +96,14 @@ export default function EventDetail({ event, onBack }) {
           disabled={rsvpLoading || loadingParticipants}
         >
           {rsvpLoading ? 'Saving...' : isAttending ? 'Leave Event' : 'Join Event'}
+        </button>
+
+        {/* Link to event-specific chat room */}
+        <button
+          className="chat-button"
+          onClick={() => navigate(`/chats/${event.id}`, { state: { title: event.title } })}
+        >
+          Open Chat
         </button>
 
         <div className="attendees-section">
