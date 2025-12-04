@@ -111,3 +111,30 @@ export const eventsAPI = {
     });
   },
 };
+
+export const usersAPI = {
+  getById: async (userId) => {
+    return apiRequest(`/user/${userId}`, {
+      method: 'GET',
+    });
+  },
+};
+
+export const friendsAPI = {
+  getFriends: async () => {
+    return apiRequest('/friends/friends', {
+      method: 'GET',
+    });
+  },
+  sendRequest: async (friendId) => {
+    return apiRequest('/friends/send', {
+      method: 'POST',
+      body: JSON.stringify({ friendId }),
+    });
+  },
+  getRequests: async () => {
+    return apiRequest('/friends/requests', {
+      method: 'GET',
+    });
+  }
+};

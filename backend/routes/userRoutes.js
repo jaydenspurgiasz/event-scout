@@ -1,5 +1,5 @@
 import express from "express";
-import {searchUserByEmail, searchUsersByName} from "../controllers/userController.js";
+import {searchUserByEmail, searchUsersByName, searchUserById} from "../controllers/userController.js";
 import {protect} from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -9,5 +9,8 @@ router.post("/search/email", protect, searchUserByEmail);
 
 // Get user IDs by name
 router.post("/search/name", protect, searchUsersByName);
+
+// Get user profile by ID
+router.get("/:id", protect, searchUserById);
 
 export default router;

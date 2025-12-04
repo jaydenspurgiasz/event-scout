@@ -51,6 +51,11 @@ function App() {
             <Profile />
           </ProtectedRoute>
         } />
+        <Route path="/profile/:userId" element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        } />
         <Route path="/friends" element={
           <ProtectedRoute>
             <Following />
