@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import formatDate from "../utils/formatDate";
 import { eventsAPI } from '../api';
 import { useAuth } from '../contexts/AuthContext';
 
-export default function EventDetail({ event, onBack }) {
+export default function EventDetail({ event, onBack, onEventsRefresh }) {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [participants, setParticipants] = useState([]);
   const [loadingParticipants, setLoadingParticipants] = useState(false);
@@ -96,6 +98,14 @@ export default function EventDetail({ event, onBack }) {
           {rsvpLoading ? 'Saving...' : isAttending ? 'Leave Event' : 'Join Event'}
         </button>
 
+        {/* Link to event-specific chat room */}
+        <button
+          className="chat-button"
+          onClick={() => navigate(`/chats/${event.id}`, { state: { title: event.title } })}
+        >
+          Open Chat
+        </button>
+
         <div className="attendees-section">
           <h3>Who's Going ({participants.length})</h3>
           {loadingParticipants && <p>Loading...</p>}
@@ -106,7 +116,7 @@ export default function EventDetail({ event, onBack }) {
           {!loadingParticipants && !participantsError && participants.length > 0 && (
             <ul>
               {participants.map((p) => (
-                <li key={p.id}>{p.first_name || p.email}</li>
+                <li key={p.id}>{p.name || p.email}</li>
               ))}
             </ul>
           )}
