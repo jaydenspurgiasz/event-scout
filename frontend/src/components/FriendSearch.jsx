@@ -1,65 +1,61 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { friendsAPI } from "../api";
+import { usersAPI, friendsAPI } from "../api";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function FriendSearch() {
   const navigate = useNavigate();
-  const [search, setSearch] = useState("");
-  const [results, setResults] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [existingFriendIds, setExistingFriendIds] = useState(new Set());
 
   const { user: currentUser } = useAuth();
 
+  const filterExistingFriends = (users, friendIds) => {
+    return users.filter(user => {
+      const isFriend = friendIds.has(user.id);
+      const isMe = currentUser?.id === user.id;
+      return !isFriend && !isMe;
+    });
+  }
+
+  // Load existing friends first, then load all users
   useEffect(() => {
-    const loadExistingFriends = async () => {
-      try {
-        const myFriends = await friendsAPI.getAllFriends();
-        if (Array.isArray(myFriends)) {
-          // Create a Set of IDs for fast lookup
-          const ids = new Set(myFriends.map(f => f.id));
-          setExistingFriendIds(ids);
-        }
-      } catch (err) {
-        console.error("Failed to load existing friends for filtering", err);
-      }
-    };
-    loadExistingFriends();
-  }, []);
-
-  const handleSearch = async (e) => {
-    const query = e.target.value;
-    setSearch(query);
-
-    if (query.trim().length > 0) {
+    const initialize = async () => {
       setLoading(true);
       try {
-        const users = await friendsAPI.searchByName(query);
+        // Load existing friends
+        const myFriends = await friendsAPI.getAllFriends();
+        const ids = Array.isArray(myFriends) ? new Set(myFriends.map(f => f.id)) : new Set();
         
-        // 2. Filter the results
-        const allUsers = Array.isArray(users) ? users : [];
-        
-        const filteredResults = allUsers.filter(user => {
-            // Filter out if they are in our friends list
-            const isFriend = existingFriendIds.has(user.id);
-            // Filter out if it's ME (the current logged in user)
-            const isMe = currentUser?.id === user.id;
-            
-            return !isFriend && !isMe;
-        });
-
-        setResults(filteredResults);
-      } catch (error) {
-        console.error("Search error:", error);
+        // Then load all users
+        const allUsers = await usersAPI.search();
+        const filteredUsers = filterExistingFriends(Array.isArray(allUsers) ? allUsers : [], ids);
+        setUsers(filteredUsers);
+      } catch (err) {
+        console.error("Failed to initialize:", err);
       } finally {
         setLoading(false);
       }
-    } else {
-      setResults([]);
-    }
-  };
+    };
+    initialize();
+  }, []); // Only run on mount
+
+  // Client-side filtering using useMemo (same as EventsList)
+  const filteredUsers = useMemo(() => {
+    const list = Array.isArray(users) ? users : [];
+    const q = (searchQuery || '').trim().toLowerCase();
+    if (!q) return list;
+    return list.filter((user) => {
+      const name = (user.name || '').toLowerCase();
+      const email = (user.email || '').toLowerCase();
+      return (
+        name.includes(q) ||
+        email.includes(q)
+      );
+    });
+  }, [users, searchQuery]);
 
   const handleAddFriend = async (friendId) => {
     try {
@@ -87,9 +83,9 @@ export default function FriendSearch() {
           <input
             type="text"
             className="input"
-            placeholder="Enter name..."
-            value={search}
-            onChange={handleSearch}
+            placeholder="Search users by name or email..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
 
@@ -100,13 +96,15 @@ export default function FriendSearch() {
         )}
 
         <div className="events-list">
-          {loading && <p className="empty-state">Searching...</p>}
+          {loading && <p className="empty-state">Loading...</p>}
 
-          {!loading && results.length === 0 && search.length > 0 && (
-            <p className="empty-state">No new users found.</p>
+          {!loading && users.length === 0 && <p className="empty-state">No users available.</p>}
+          
+          {!loading && users.length > 0 && filteredUsers.length === 0 && (
+            <p className="empty-state">No users match your search.</p>
           )}
 
-          {results.map((user) => (
+          {filteredUsers.map((user) => (
             <div key={user.id} className="event-card card-flex">
               <div className="user-info">
                 <h3>

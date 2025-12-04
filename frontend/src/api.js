@@ -160,3 +160,11 @@ export const friendsAPI = {
     });
   }
 };
+
+export const usersAPI = {
+  search: async () => {
+    return apiRequest('/user/search', {
+      method: 'GET',
+    });
+  }
+}
