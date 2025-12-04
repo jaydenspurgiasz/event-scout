@@ -74,7 +74,7 @@ export default function FriendSearch() {
   return (
     <div className="container">
       <div className="card">
-        <button onClick={() => navigate("friends")} className="back-button">
+        <button onClick={() => navigate("/friends")} className="back-button">
           ← Back
         </button>
 
