@@ -8,7 +8,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Profile from './components/Profile';
 import Following from './components/Friends';
-import { SettingsMenu, ChangeEmail, ChangePassword } from './components/Settings';
+import { SettingsMenu} from './components/Settings';
 import { ChatList, ChatRoom } from './components/Chat';
 import HomePage from './pages/HomePage';
 import PublicRoute from './components/PublicRoute';
@@ -53,6 +53,11 @@ function App() {
             <Profile />
           </ProtectedRoute>
         } />
+        <Route path="/profile/:userId" element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        } />
         <Route path="/friends" element={
           <ProtectedRoute>
             <Following />
@@ -61,16 +66,6 @@ function App() {
         <Route path="/settings" element={
           <ProtectedRoute>
             <SettingsMenu />
-          </ProtectedRoute>
-        } />
-        <Route path="/settings/change-email" element={
-          <ProtectedRoute>
-            <ChangeEmail />
-          </ProtectedRoute>
-        } />
-        <Route path="/settings/change-password" element={
-          <ProtectedRoute>
-            <ChangePassword />
           </ProtectedRoute>
         } />
         <Route path="/chats" element={

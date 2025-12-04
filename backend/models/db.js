@@ -480,10 +480,10 @@ export const deleteFriend = (userId, friendId) => {
 export const getFriends = (userId) => {
   return new Promise((resolve, reject) => {
   // Return all friends of the current user
-  // Should return each friend's: id, email, name, friended_at
+  // Should return each friend's: id, name, friended_at
   db.all(
     `SELECT
-      u.id, u.email, u.name, f.friended_at
+      u.id, u.name, f.friended_at
     FROM
       users u
     JOIN
@@ -524,4 +524,68 @@ export const getFriendRequests = (userId) => {
     }
   )
 });
+};
+
+// Get user profile info, friend status, and rsvped events
+export const getUserProfile = (targetId, reqId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const user = await new Promise((res, rej) => {
+        const sql = `
+          SELECT
+            u.id,
+            u.name,
+            (SELECT COUNT(*) FROM friends WHERE (user_id = u.id OR friend_id = u.id) AND status = 'accepted') as friend_count,
+            f.status as friendship_status,
+            f.user_id as friend_init_id
+          FROM users u
+          LEFT JOIN
+            friends f
+            ON ((f.user_id = u.id AND f.friend_id = ?) OR (f.friend_id = u.id AND f.user_id = ?))
+          WHERE u.id = ?
+        `;
+        db.get(sql, [reqId, reqId, targetId], (err, row) => {
+          if (err) rej(err);
+          else res(row);
+        });
+      });
+      if (!user) return resolve(null);
+
+      const events = await new Promise((res, rej) => {
+        const sql = `
+          SELECT DISTINCT e.*
+          FROM events e
+          INNER JOIN 
+            participants p ON e.id = p.event_id 
+          LEFT JOIN 
+            friends f
+            ON ((f.user_id = e.user_id AND f.friend_id = ?) OR (f.friend_id = e.user_id AND f.user_id = ?))
+            AND f.status = 'accepted'
+          WHERE 
+            p.user_id = ?
+          AND (
+            NOT e.private
+            OR e.user_id = ? 
+            OR f.user_id IS NOT NULL
+          )
+        `;
+        db.all(sql, [reqId, reqId, targetId, reqId], (err, rows) => {
+          if (err) rej(err);
+          else res(rows);
+        });
+      });
+
+      resolve({
+        id: user.id,
+        name: user.name,
+        friendCount: user.friend_count,
+        isFriend: user.friendship_status === 'accepted',
+        isPending: user.friendship_status === 'pending' && user.friend_init_id == reqId,
+        isIncomingRequest: user.friendship_status === 'pending' && user.friend_init_id != reqId,
+        events
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
 };
