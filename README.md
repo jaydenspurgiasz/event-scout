@@ -74,20 +74,28 @@ Once both servers are running:
 3. You should see the Event Scout homepage with the events list
 
 
-
-![System Architecture](./architecture-diagram.png)
+Diagrams:
+![System Architecture](./updated.drawio.png)
 
 This diagram shows the system architecture and how different componenets interact with each other
 
 Description: 
 
 Frontend (React): 
-Sends HTTP requests to the Express server for daa operations and maintains WebSocket connections for real-time chats.
+Sends HTTP requests to the Express server for data operations and maintains WebSocket connections for real-time chats.
 
 Backend (Node.js/Express): 
-The Express server handles API routing which connects the different controllers for backend logic; Auth Middleware validates the JWT tokens before processing each request. Socket.IO manages the chat connections
+/api/auth - user registration and login
+/api/events - Event CRUD operations and RSVP management
+/api/users - user profiles and activity
+/api/friends - friend requests and relationships
+
+Auth Middleware validates JWT tokens for protected routes; controllers handle all the logic. 
 
 Database (SQLite): 
 Users (account information), events (event details), RSVPs (event attendance), and messages (chat history). Controllers will query the DB and return the results to the different API routes
+
+Communication: 
+HTTP/Rest APIs handle CRUD operations with JWT auth. 
 
 
