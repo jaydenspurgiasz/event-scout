@@ -29,18 +29,6 @@ export default function EventsList() {
     setLoading(false);
   }
 
-  const handleSelectEvent = (event) => {
-    setSelectedEvent(event);
-  };
-
-  const handleBack = () => {
-    setSelectedEvent(null);
-  };
-
-  const handleRefresh = async () => {
-    loadEvents();
-  };
-
   const filteredEvents = useMemo(() => {
     const list = Array.isArray(events) ? events : [];
     const q = (searchQuery || '').trim().toLowerCase();
@@ -61,8 +49,7 @@ export default function EventsList() {
     return (
       <EventDetail 
         event={selectedEvent}
-        onBack={handleBack}
-        onEventsRefresh={handleRefresh}
+        onBack={() => setSelectedEvent(null)}
       />
     );
   }
@@ -70,10 +57,10 @@ export default function EventsList() {
   if (showCreateEvent) {
     return (
       <CreateEvent 
-        onCancel={() => setShowCreateEvent(false)}
+        onBack={() => setShowCreateEvent(false)}
         onSuccess={() => {
           setShowCreateEvent(false);
-          handleRefresh();
+          loadEvents();
         }}
       />
     );
@@ -107,7 +94,7 @@ export default function EventsList() {
             fontSize: 16,
           }}
         />
-        <button onClick={handleRefresh} disabled={loading} style={{ padding: '10px 12px' }}>
+        <button onClick={() => loadEvents()} disabled={loading} style={{ padding: '10px 12px' }}>
           Refresh
         </button>
       </div>
@@ -125,7 +112,7 @@ export default function EventsList() {
             <div
               key={event.id}
               className="event-card"
-              onClick={() => handleSelectEvent(event)}
+              onClick={() => setSelectedEvent(event)}
             >
               <h3>{event.title}</h3>
               <p>{formatDate(event.date)}</p>
