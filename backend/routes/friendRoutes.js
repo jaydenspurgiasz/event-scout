@@ -1,5 +1,5 @@
 import express from "express";
-import { sendRequest, acceptRequest, rejectRequest, removeFriend, getAllFriends, getRequests, searchFriendsByName } from "../controllers/friendController.js";
+import { sendRequest, acceptRequest, rejectRequest, removeFriend, getAllFriends, getRequests, searchFriendsByName, getFriendsOfUser } from "../controllers/friendController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -21,9 +21,13 @@ router.post("/remove", removeFriend);
 // Get friends
 router.get("/friends", getAllFriends);
 
+// Get friends of a user
+router.get("/friends/:userId", getFriendsOfUser);
+
 // Get friend requests
 router.get("/requests", getRequests);
 
+// Search friends by name
 router.post("/search/name", searchFriendsByName);
 
 export default router;

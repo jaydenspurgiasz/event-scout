@@ -112,6 +112,14 @@ export const eventsAPI = {
   },
 };
 
+export const usersAPI = {
+  getById: async (userId) => {
+    return apiRequest(`/user/${userId}`, {
+      method: 'GET',
+    });
+  },
+};
+
 export const friendsAPI = {
   sendRequest: async (friendId) => {
     return apiRequest('/friend/send', {
@@ -143,6 +151,12 @@ export const friendsAPI = {
 
   getAllFriends: async () => {
     return apiRequest('/friend/friends', {
+      method: 'GET'
+    });
+  },
+
+  getFriendsOfUser: async (userId) => {
+    return apiRequest(`/friend/friends/${userId}`, {
       method: 'GET'
     });
   },

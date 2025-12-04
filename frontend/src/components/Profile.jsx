@@ -6,11 +6,12 @@ import { usersAPI, friendsAPI } from '../api';
 export default function Profile() {
     const navigate = useNavigate();
     const { user } = useAuth();
-
     const { userId } = useParams();
     
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [friendsList, setFriendsList] = useState([]);
+    const [showFriends, setShowFriends] = useState(false);
 
     const isMe = !userId || (user && userId == user.id);
 
@@ -44,6 +45,24 @@ export default function Profile() {
         });
     };
 
+    const handleFriendsClick = () => {
+        if (isMe) {
+            navigate("/friends");
+        } else {
+            if (showFriends) {
+                setShowFriends(false);
+            } else {
+                friendsAPI.getFriendsOfUser(userId).then(data => {
+                    setFriendsList(data);
+                    setShowFriends(true);
+                }).catch(err => {
+                    console.log(err);
+                    alert("Failed to load friends");
+                });
+            }
+        }
+    };
+
     if (loading) {
         return <div className="container"><div className="card">Loading...</div></div>;
     }
@@ -51,7 +70,6 @@ export default function Profile() {
     if (!profile) {
         return <div className="container"><div className="card">User not found</div></div>;
     }
-
 
     return (
         <div className="container">
@@ -81,11 +99,31 @@ export default function Profile() {
                 )}
 
                 <div className="profile-stats">
-                    <div className="button-secondary" style={{cursor: 'default'}}>
+                    <button onClick={handleFriendsClick} className="button-secondary">
                         <span className="stat-label">Friends: </span>
                         <span className="stat-number">{profile.friendCount}</span>
-                    </div>
+                    </button>
                 </div>
+
+                {showFriends && !isMe && (
+                    <div className="event-section">
+                        <h2 className="form-title">Friends List</h2>
+                        <div className="event-list">
+                            {friendsList.length > 0 ? (
+                                friendsList.map(friend => (
+                                    <div key={friend.id} className="event-item" onClick={() => {
+                                        navigate(`/profile/${friend.id}`);
+                                        setShowFriends(false);
+                                    }} style={{cursor: 'pointer'}}>
+                                        <h3>{friend.name}</h3>
+                                    </div>
+                                ))
+                            ) : (
+                                <p>No friends found.</p>
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 <div className="event-section">
                     <h2 className="form-title">Events</h2>

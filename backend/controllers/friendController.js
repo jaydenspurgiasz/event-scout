@@ -70,6 +70,17 @@ export const getRequests = async (req, res) => {
     }
 };
 
+export const getFriendsOfUser = async (req, res) => {
+    const { userId } = req.params;
+    try {
+        const friends = await getFriends(userId);
+        res.status(200).json(friends);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to get friends" });
+    }
+};
+
 export const searchFriendsByName = async (req, res) => {
     const {name} = req.body;
     try {
