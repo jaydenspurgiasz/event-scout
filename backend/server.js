@@ -13,23 +13,21 @@ import { saveMessage, getMessages } from "./controllers/messageController.js";
 const app = express();
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 5000;
-const allowed = { origin: process.env.CLIENT_URL ? [process.env.CLIENT_URL] : ["http://localhost:3000", "http://localhost:3001"], credentials: true };
 
-// Initialize Socket.IO
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL ? [process.env.CLIENT_URL] : ["http://localhost:3000", "http://localhost:3001"],
-    methods: ["GET", "POST"],
-    credentials: true
+    origin: "*",
+    methods: ["GET", "POST"]
   }
 });
 
-// Middleware
 app.use(express.json());
-app.use(cors(allowed));
+app.use(cors({ 
+  origin: ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002"],
+  credentials: true 
+}));
 app.use(cookieParser());
 
-// Routes
 app.get("/", (req, res) => {
   res.send("Hello, World!");
 });
@@ -40,47 +38,28 @@ app.get("/health", (req, res) => {
 
 app.use("/api", apiRoutes);
 
-// WebSocket connection handling
 io.on("connection", (socket) => {
-  console.log(`Client connected: ${socket.id}`);
-
   socket.on("join_event", (data) => {
-    const { eventId } = data;
-    socket.join(`event_${eventId}`);
-    console.log(`Socket ${socket.id} joined event ${eventId}`);
-
-    getMessages(eventId, (err, messages) => {
-      if (err) {
-        socket.emit("error", { message: "Failed to load messages" });
-        return;
+    socket.join(`event_${data.eventId}`);
+    getMessages(data.eventId, (err, messages) => {
+      if (!err) {
+        socket.emit("messages_history", { messages });
       }
-      socket.emit("messages_history", { messages });
     });
   });
 
   socket.on("send_message", (data) => {
-    const { eventId, userId, message } = data;
-
-    saveMessage(eventId, userId, message, (err, messageId) => {
-      if (err) {
-        socket.emit("error", { message: "Failed to send message" });
-        return;
+    saveMessage(data.eventId, data.userId, data.message, (err) => {
+      if (!err) {
+        getMessages(data.eventId, (err, messages) => {
+          if (!err) {
+            io.to(`event_${data.eventId}`).emit("new_message", { 
+              message: messages[messages.length - 1] 
+            });
+          }
+        });
       }
-
-      getMessages(eventId, (err, messages) => {
-        if (err) {
-          socket.emit("error", { message: "Failed to load messages" });
-          return;
-        }
-
-        const newMessage = messages[messages.length - 1];
-        io.to(`event_${eventId}`).emit("new_message", { message: newMessage });
-      });
     });
-  });
-
-  socket.on("disconnect", () => {
-    console.log(`Client disconnected: ${socket.id}`);
   });
 });
 
@@ -89,7 +68,6 @@ const startServer = async () => {
     await initializeDatabase();
     httpServer.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
-      console.log(`WebSocket server is ready`);
     });
   } catch(err) {
     console.error("Failed to start server:", err);

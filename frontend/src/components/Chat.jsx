@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { io } from "socket.io-client";
+import { useAuth } from "../contexts/AuthContext";
 
 export function ChatList() {
     const navigate = useNavigate();
@@ -13,41 +15,66 @@ export function ChatRoom() {
     const navigate = useNavigate();
     const location = useLocation();
     const { chatId } = useParams();
+    const { user } = useAuth();
     const [messageInput, setMessageInput] = useState("");
     const [messages, setMessages] = useState([]);
-    const chatTitle = location?.state?.title || "";
+    const socketRef = useRef(null);
+
+    useEffect(() => {
+        if (!chatId) return;
+
+        const socket = io("http://localhost:8000", {
+            transports: ["websocket"]
+        });
+
+        socketRef.current = socket;
+
+        socket.on("connect", () => {
+            socket.emit("join_event", { eventId: chatId });
+        });
+
+        socket.on("messages_history", (data) => {
+            setMessages(data.messages);
+        });
+
+        socket.on("new_message", (data) => {
+            setMessages(prev => [...prev, data.message]);
+        });
+
+        return () => socket.disconnect();
+    }, [chatId]);
 
     const handleSend = () => {
-        if (messageInput.trim()) {
-            const newMessage = {
-                sender: "me",
-                text: messageInput,
-                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            };
-            setMessages([...messages, newMessage]);
-            setMessageInput("");
-        }
+        if (!messageInput.trim() || !socketRef.current || !user) return;
+
+        socketRef.current.emit("send_message", {
+            eventId: chatId,
+            userId: user.id,
+            message: messageInput.trim()
+        });
+
+        setMessageInput("");
     };
 
     return (
       <div className="container">
         <div className="chat-card">
-      <button onClick={() => navigate(-1)} className="back-button">← Back</button>
+          <button onClick={() => navigate(-1)} className="back-button">← Back</button>
           <div className="form-header">
-            <h2>{chatTitle}</h2>
+            <h2>{location?.state?.title || "Event Chat"}</h2>
           </div>
           <div className="messages-container">
             {messages.map((msg, index) => (
-              <div key={index} className={`message ${msg.sender === "me" ? "message-sent" : "message-received"}`}>
+              <div key={index} className={`message ${user && msg.email === user.email ? "message-sent" : "message-received"}`}>
                 <div>
                   <div className="message-header">
-                    {msg.sender === "me" ? "You: " : msg.sender||": "}
+                    {user && msg.email === user.email ? "You" : (msg.name || msg.email)}
                   </div>
                   <div className="message-text">
-                    {msg.text}
+                    {msg.message}
                   </div>
                   <div className="message-time">
-                    {msg.timestamp}
+                    {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
               </div>
@@ -62,7 +89,7 @@ export function ChatRoom() {
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Type a message..."
             />
-            <button onClick={handleSend} className="send-button"> Send </button>
+            <button onClick={handleSend} className="send-button">Send</button>
           </div>
         </div>
       </div>
