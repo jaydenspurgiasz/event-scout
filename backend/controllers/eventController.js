@@ -92,11 +92,11 @@ export const unRsvpUserFromEvent = async (req, res) => {
 };
 
 export const getRsvpedEvents = async (req, res) => {
-    const { reqId } = req.user;
-    const { id } = req.params;
+    const reqId = req.user.id;  // The authenticated user making the request (for permission checking)
+    const userId = req.params.id;  // The user whose RSVPed events we want to see
     
     try {
-        const events = await getEventsUserIsAttending(reqId, id);
+        const events = await getEventsUserIsAttending(reqId, userId);
         res.status(200).json(events);
     } catch (err) {
         res.status(500).json({ error: err.message });
