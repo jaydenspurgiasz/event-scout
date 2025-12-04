@@ -111,3 +111,52 @@ export const eventsAPI = {
     });
   },
 };
+
+export const friendsAPI = {
+  sendRequest: async (friendId) => {
+    return apiRequest('/friend/send', {
+      method: 'POST',
+      body: JSON.stringify({ friendId })
+    });
+  },
+
+  acceptRequest: async (friendId) => {
+    return apiRequest('/friend/accept', {
+      method: 'POST',
+      body: JSON.stringify({ friendId })
+    });
+  },
+
+  rejectRequest: async (friendId) => {
+    return apiRequest('/friend/reject', {
+      method: 'POST',
+      body: JSON.stringify({ friendId })
+    });
+  },
+
+  removeFriend: async (friendId) => {
+    return apiRequest('/friend/remove', {
+      method: 'POST',
+      body: JSON.stringify({ friendId })
+    });
+  },
+
+  getAllFriends: async () => {
+    return apiRequest('/friend/friends', {
+      method: 'GET'
+    });
+  },
+
+  getRequests: async () => {
+    return apiRequest('/friend/requests', {
+      method: 'GET'
+    });
+  },
+
+  searchByName: async (name) => {
+    return apiRequest('/friend/search/name', {
+      method: 'POST',
+      body: JSON.stringify({ name })
+    });
+  }
+};
