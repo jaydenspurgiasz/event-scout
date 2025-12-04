@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 export default function Profile() {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const name = user ? `${user.firstName} ${user.lastName}` : '';
+    const name = user ? `${user.name}` : '';
     const email = user?.email || '';
 
     return (
