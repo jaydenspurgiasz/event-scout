@@ -13,6 +13,7 @@ export default function Profile() {
     const [friendsList, setFriendsList] = useState([]);
     const [showFriends, setShowFriends] = useState(false);
     const [numFriends, setNumFriends] = useState(0);
+    const [events, setEvents] = useState([]);
 
     const isMe = !userId || (user && userId == user.id);
 
@@ -35,17 +36,29 @@ export default function Profile() {
     }, [userId, user, isMe]);
 
     useEffect(() => {
+      const loadFriends = async () => {
+        try {
+          const friendsData = await friendsAPI.getAllFriends();
+          setNumFriends(friendsData ? friendsData.length : 0);
+        } catch(err) {
+          console.log('error loading friends', err);
+        }
+      };
       loadFriends();
     }, []);
 
-    const loadFriends = async () => {
-      try {
-        const friendsData = await friendsAPI.getAllFriends();
-        setNumFriends(friendsData ? friendsData.length : 0);
-      } catch(err) {
-        console.log('error loading friends', err);
-      }
-    };
+    useEffect(() => {
+      const loadEvents = async () => {
+        try {
+          const eventsData = await eventsAPI.searchAttending(user.id);
+          setEvents(Array.isArray(eventsData) ? eventsData : []);
+        } catch(err) {
+          console.log('error loading events', err);
+          setEvents([]);
+        }
+      };
+      loadEvents();
+    }, [user?.id]);
 
     const addFriend = () => {
         friendsAPI.sendRequest(userId).then(() => {

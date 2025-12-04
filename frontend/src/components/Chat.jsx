@@ -3,6 +3,8 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { io } from "socket.io-client";
 import { useAuth } from "../contexts/AuthContext";
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
 export function ChatList() {
     const navigate = useNavigate();
     useEffect(() => {
@@ -23,7 +25,7 @@ export function ChatRoom() {
     useEffect(() => {
         if (!chatId) return;
 
-        const socket = io("http://localhost:8000", {
+        const socket = io(API_BASE_URL, {
             transports: ["websocket"]
         });
 
@@ -68,7 +70,7 @@ export function ChatRoom() {
               <div key={index} className={`message ${user && msg.email === user.email ? "message-sent" : "message-received"}`}>
                 <div>
                   <div className="message-header">
-                    {user && msg.email === user.email ? "You" : (msg.name || msg.email)}
+                    {user && msg.email === user.email ? "You" : msg.name}
                   </div>
                   <div className="message-text">
                     {msg.message}

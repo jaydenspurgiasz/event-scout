@@ -87,6 +87,12 @@ export const eventsAPI = {
     });
   },
 
+  searchAttending: async (userId) => {
+    return apiRequest(`/event/attending/${userId}`, {
+      method: 'GET',
+    });
+  },
+
   getById: async (eventId) => {
     return apiRequest(`/event/${eventId}`, {
       method: 'GET',
