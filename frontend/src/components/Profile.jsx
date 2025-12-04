@@ -2,10 +2,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { usersAPI, friendsAPI } from '../api';
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { friendsAPI } from '../api';
 
 export default function Profile() {
     const navigate = useNavigate();
@@ -16,6 +12,7 @@ export default function Profile() {
     const [loading, setLoading] = useState(false);
     const [friendsList, setFriendsList] = useState([]);
     const [showFriends, setShowFriends] = useState(false);
+    const [numFriends, setNumFriends] = useState(0);
 
     const isMe = !userId || (user && userId == user.id);
 
@@ -26,7 +23,7 @@ export default function Profile() {
             if (isMe) {
                 id = user.id;
             }
-            
+
             usersAPI.getById(id).then(data => {
                 setProfile(data);
                 setLoading(false);
@@ -36,6 +33,19 @@ export default function Profile() {
             });
         }
     }, [userId, user, isMe]);
+
+    useEffect(() => {
+      loadFriends();
+    }, []);
+
+    const loadFriends = async () => {
+      try {
+        const friendsData = await friendsAPI.getAllFriends();
+        setNumFriends(friendsData ? friendsData.length : 0);
+      } catch(err) {
+        console.log('error loading friends', err);
+      }
+    };
 
     const addFriend = () => {
         friendsAPI.sendRequest(userId).then(() => {
@@ -75,21 +85,6 @@ export default function Profile() {
         return <div className="container"><div className="card">User not found</div></div>;
     }
 
-    const [numFriends, setNumFriends] = useState(0);
-
-    useEffect(() => {
-      loadFriends();
-    }, []);
-
-    const loadFriends = async () => {
-      try {
-        const friendsData = await friendsAPI.getAllFriends();
-        setNumFriends(friendsData ? friendsData.length : 0);
-      } catch(err) {
-        console.log('error loading friends', err);
-      }
-    };
-
     return (
         <div className="container">
             <div className="card">
@@ -105,11 +100,9 @@ export default function Profile() {
                     {isMe && <p className="subtitle">{user.email}</p>}
                 </div>
 
-                {!isMe && (
+                {!isMe && !profile.isFriend && (
                     <div className="button-group" style={{ marginBottom: '2rem' }}>
-                        {profile.isFriend ? (
-                            <button className="button-secondary" disabled>Friends</button>
-                        ) : profile.isPending ? (
+                        {profile.isPending ? (
                             <button className="button-primary" disabled>Request Sent</button>
                         ) : (
                             <button onClick={addFriend} className="button-primary">Add Friend</button>

@@ -118,6 +118,11 @@ export const usersAPI = {
       method: 'GET',
     });
   },
+  search: async () => {
+    return apiRequest('/user/search', {
+      method: 'GET',
+    });
+  }
 };
 
 export const friendsAPI = {
@@ -174,11 +179,3 @@ export const friendsAPI = {
     });
   }
 };
-
-export const usersAPI = {
-  search: async () => {
-    return apiRequest('/user/search', {
-      method: 'GET',
-    });
-  }
-}
