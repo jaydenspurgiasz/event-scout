@@ -64,12 +64,20 @@ export default function Friends(){
             <p className="empty-state">Loading friends...</p>
           ) : friends.length > 0 ? (
             friends.map((friend) => (
-              <div key={friend.id} className="event-card card-flex">
+              <div 
+                key={friend.id} 
+                className="event-card card-flex"
+                onClick={() => navigate(`/profile/${friend.id}`)}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className="user-info">
                   <h3>{friend.name}</h3>
                 </div>
                 <button
-                  onClick={() => handleRemoveFriend(friend.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveFriend(friend.id);
+                  }}
                   className="button-secondary btn-auto"
                 >
                   Remove

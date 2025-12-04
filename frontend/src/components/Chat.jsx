@@ -70,7 +70,7 @@ export function ChatRoom() {
               <div key={index} className={`message ${user && msg.email === user.email ? "message-sent" : "message-received"}`}>
                 <div>
                   <div className="message-header">
-                    {user && msg.email === user.email ? "You" : (msg.name || msg.email)}
+                    {user && msg.email === user.email ? "You" : msg.name}
                   </div>
                   <div className="message-text">
                     {msg.message}

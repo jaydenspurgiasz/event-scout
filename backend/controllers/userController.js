@@ -1,4 +1,4 @@
-import { getUserByEmail, getUsersByName, getAllUsers } from "../models/db.js";
+import { getUserByEmail, getUsersByName, getAllUsers, getUserProfile } from "../models/db.js";
 
 // Get a user ID by their email
 export const searchUserByEmail = async (req, res) => {
@@ -36,3 +36,19 @@ export const searchUsers = async (req, res) => {
         return res.status(500).json({ error: err.message });
     }
 }
+
+// Get user profile by ID
+export const searchUserById = async (req, res) => {
+    const { id } = req.params;
+    const reqId = req.user.id;
+
+    try {
+        const profile = await getUserProfile(id, reqId);
+        if (profile) {
+            return res.status(200).json(profile);
+        }
+        return res.status(404).json({ error: "User not found" });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+};

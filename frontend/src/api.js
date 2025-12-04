@@ -118,6 +118,19 @@ export const eventsAPI = {
   },
 };
 
+export const usersAPI = {
+  getById: async (userId) => {
+    return apiRequest(`/user/${userId}`, {
+      method: 'GET',
+    });
+  },
+  search: async () => {
+    return apiRequest('/user/search', {
+      method: 'GET',
+    });
+  }
+};
+
 export const friendsAPI = {
   sendRequest: async (friendId) => {
     return apiRequest('/friend/send', {
@@ -153,6 +166,12 @@ export const friendsAPI = {
     });
   },
 
+  getFriendsOfUser: async (userId) => {
+    return apiRequest(`/friend/friends/${userId}`, {
+      method: 'GET'
+    });
+  },
+
   getRequests: async () => {
     return apiRequest('/friend/requests', {
       method: 'GET'
@@ -166,11 +185,3 @@ export const friendsAPI = {
     });
   }
 };
-
-export const usersAPI = {
-  search: async () => {
-    return apiRequest('/user/search', {
-      method: 'GET',
-    });
-  }
-}
