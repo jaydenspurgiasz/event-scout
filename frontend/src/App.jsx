@@ -9,7 +9,7 @@ import Register from './components/Register';
 import Profile from './components/Profile';
 import Following from './components/Friends';
 import { SettingsMenu} from './components/Settings';
-import { ChatList, ChatRoom } from './components/Chat';
+import { ChatRoom } from './components/Chat';
 import HomePage from './pages/HomePage';
 import PublicRoute from './components/PublicRoute';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -66,11 +66,6 @@ function App() {
         <Route path="/settings" element={
           <ProtectedRoute>
             <SettingsMenu />
-          </ProtectedRoute>
-        } />
-        <Route path="/chats" element={
-          <ProtectedRoute>
-            <ChatList />
           </ProtectedRoute>
         } />
         <Route path="/chats/:chatId" element={

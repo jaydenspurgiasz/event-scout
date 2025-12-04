@@ -5,14 +5,6 @@ import { useAuth } from "../contexts/AuthContext";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
-export function ChatList() {
-    const navigate = useNavigate();
-    useEffect(() => {
-      navigate(-1);
-    }, [navigate]);
-    return null;
-}
-
 export function ChatRoom() {
     const navigate = useNavigate();
     const location = useLocation();
