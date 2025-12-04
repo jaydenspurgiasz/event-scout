@@ -67,7 +67,7 @@ export default function Friends(){
             friends.map((friend) => (
               <div key={friend.id} className="event-card card-flex">
                 <div className="user-info">
-                  <h3>{friend.first_name} {friend.last_name || ''}</h3>
+                  <h3>{friend.name}</h3>
                   <p className="user-email">{friend.email}</p>
                 </div>
                 <button

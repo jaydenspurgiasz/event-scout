@@ -110,7 +110,7 @@ export default function FriendSearch() {
             <div key={user.id} className="event-card card-flex">
               <div className="user-info">
                 <h3>
-                   {user.first_name ? `${user.first_name} ${user.last_name || ''}` : `User #${user.id}`}
+                   {user.name}
                 </h3>
                 <p className="user-email">{user.email}</p>
               </div>

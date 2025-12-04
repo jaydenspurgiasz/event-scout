@@ -59,7 +59,7 @@ export default function FriendRequests() {
             requests.map((req) => (
               <div key={req.user_id} className="event-card">
                 <div className="request-header user-info">
-                  <h3>{req.first_name} {req.last_name}</h3>
+                  <h3>{req.name}</h3>
                   <p className="user-email">{req.email}</p>
                 </div>
                 <div className="request-actions">
