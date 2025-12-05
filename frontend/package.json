@@ -19,7 +19,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "e2e": "concurrently --kill-others \"npm run playwright-test --prefix ../backend\" \"npm run start\" \"wait-on http://localhost:3000 && npx playwright test --headed\""
+    "e2e": "concurrently --kill-others \"npm run playwright-test --prefix ../backend\" \"npm run start\" \"wait-on http://localhost:8000 && npx playwright test --headed\""
   },
   "eslintConfig": {
     "extends": [

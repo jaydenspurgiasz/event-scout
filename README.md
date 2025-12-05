@@ -21,8 +21,9 @@ Create a `.env` file in the backend directory:
 PORT=8000
 NODE_ENV=development
 JWT_SECRET=your-secret-key-change-in-production
-CLIENT_URL=http://localhost:3002
+CLIENT_URL=http://localhost:3000
 ```
+Alternatively, simply copy and paste the `.env.example` file into your `.env`
 
 ### 3. Frontend Setup
 
@@ -36,8 +37,8 @@ npm install
 Create a `.env` file in the frontend directory:
 ```bash
 REACT_APP_API_URL=http://localhost:8000
-PORT=3002
 ```
+Alternatively, simply copy and paste the `.env.example` file into your `.env`
 
 ## To run the Application: 
 Run the backend and frontend at the same time
@@ -50,10 +51,10 @@ To start the backend server
    ```
 3. Start the server:
    ```bash
-   npm start
+   npm run dev
    ```
 4. The backend server will start on **port 8000**
-5. You should see: `Server running on port 8000`
+5. You should see: `Server is running on port 8000`
 
 To start the frontend server
 1. Open a new terminal window (keep the backend running)
@@ -63,21 +64,62 @@ To start the frontend server
    ```
 3. Start the development server:
    ```bash
-   npm start
+   npm run start
    ```
-4. The frontend will automatically open in your browser at **http://localhost:3002**
+4. The frontend will automatically open in your browser at **http://localhost:3000**
 
 Once both servers are running:
 
 1. Open your web browser
-2. Navigate to: http://localhost:3002
+2. Navigate to: http://localhost:3000
 3. You should see the Event Scout homepage with the events list
 
+## Running Tests
+
+### Backend Unit Tests
+
+To run the backend unit tests:
+
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+
+2. Run the tests:
+   ```bash
+   npm test
+   ```
+
+### End-to-End (E2E) Tests
+
+The project uses Playwright for end-to-end testing. The E2E tests require both the backend and frontend servers to be running.
+
+To run the E2E tests:
+
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+
+2. Run the E2E tests:
+   ```bash
+   npm run e2e
+   ```
+
+This command will:
+- Start the backend server (on port 8000) with a fresh database
+- Start the frontend development server (on port 3000)
+- Wait for both servers to be ready
+- Run the Playwright tests in headed mode (browser window will be visible)
+
+The tests will automatically clean up and shut down both servers when complete.
+
+**Note:** Make sure you are not already running the backend server or frontend before running the tests. They will not work if so as the ports the tests use will be taken.
 
 Diagrams:
 ![System Architecture](./updated.drawio.png)
 
-This diagram shows the system architecture and how different componenets interact with each other
+This diagram shows the system architecture and how different components interact with each other
 
 Description: 
 
@@ -100,7 +142,7 @@ HTTP/Rest APIs handle CRUD operations with JWT auth.
 
 ![UI State Diagram](EventScout-UI-State-Diagram.drawio.png)
 
-This Diagram shows the different states of the UI interface and how each the states change as you navigate through the UI.
+This diagram shows the different states of the UI interface and how the states change as you navigate through the UI.
 
 Description:
 
