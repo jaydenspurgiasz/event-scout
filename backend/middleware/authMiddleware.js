@@ -24,6 +24,11 @@ export const protect = (req, res, next) => {
   }
 };
 
+/**
+ * Allows routes to work for both authenticated and unauthenticated users
+ * Sets req.user.id if valid token exists, otherwise null
+ * Used for routes that show different content based on auth status (e.g., event lists)
+ */
 export const optionalAuth = (req, res, next) => {
   req.user = { id: null }
   const token = req.cookies.token;

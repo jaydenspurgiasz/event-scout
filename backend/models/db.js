@@ -68,7 +68,6 @@ User Methods
 
 */
 
-// Add a user
 export const createUser = (email, password, name) => {
   return new Promise((resolve, reject) => {
     db.run(
@@ -82,7 +81,6 @@ export const createUser = (email, password, name) => {
   });
 };
 
-// Get auth details for user (for login)
 export const getAuthCredentials = (email) => {
   return new Promise((resolve, reject) => {
     db.get("SELECT * FROM users WHERE email = ?", [email], (err, row) => {
@@ -92,7 +90,6 @@ export const getAuthCredentials = (email) => {
   });
 }
 
-// Get user by email
 export const getUserByEmail = (email) => {
   return new Promise((resolve, reject) => {
     db.get("SELECT id, email, name FROM users WHERE email = ?", [email], (err, row) => {
@@ -102,7 +99,6 @@ export const getUserByEmail = (email) => {
   });
 };
 
-// Get user by ID
 export const getUserById = (id) => {
   return new Promise((resolve, reject) => {
     db.get("SELECT id, email, name FROM users WHERE id = ?", [id], (err, row) => {
@@ -112,7 +108,6 @@ export const getUserById = (id) => {
   });
 };
 
-// Get users by name
 export const getUsersByName = (name) => {
   return new Promise((resolve, reject) => {
     db.all("SELECT id, email, name FROM users WHERE name = ?", [name], (err, rows) => {
@@ -137,7 +132,6 @@ Event Methods
 
 */
 
-// Add an event
 export const createEvent = (title, description, date, location, priv, userId) => {
   return new Promise((resolve, reject) => {
     db.run( 
@@ -151,7 +145,6 @@ export const createEvent = (title, description, date, location, priv, userId) =>
   });
 };
 
-// Get all events
 export const getPublicEvents = () => {
   return new Promise((resolve, reject) => {
     db.all("SELECT * FROM events WHERE NOT private", [], (err, rows) => {
@@ -161,7 +154,12 @@ export const getPublicEvents = () => {
   });
 };
 
-// Get all events, given an authenticated user ID
+/**
+ * Get all events visible to a user
+ * Visibility rules:
+ * - Public events are visible to everyone
+ * - Private events are visible if: user is the creator OR user is friends with the creator
+ */
 export const getAllEvents = (userID) => {
   return new Promise((resolve, reject) => {
     const sql = `
@@ -184,7 +182,6 @@ export const getAllEvents = (userID) => {
   });
 };
 
-// Get event by id
 export const getEventById = (id, userID) => {
   return new Promise((resolve, reject) => {
     const sql = `
@@ -210,7 +207,6 @@ export const getEventById = (id, userID) => {
   });
 };
 
-// Get events by title
 export const getEventsByTitle = (title, userID) => {
   return new Promise((resolve, reject) => {
     if (!userID) {
@@ -244,7 +240,9 @@ export const getEventsByTitle = (title, userID) => {
   });
 }
 
-// RSVP User to an event
+/**
+ * RSVP a user to an event. First verifies the user can access the event based on visibility
+ */
 export const addUserToEvent = (userId, eventId) => {
   return new Promise((resolve, reject) => {
     const checkSql = `
@@ -281,7 +279,6 @@ export const addUserToEvent = (userId, eventId) => {
   });
 };
 
-// Un-RSVP User from an event
 export const removeUserFromEvent = (userId, eventId) => {
   return new Promise((resolve, reject) => {
     db.run(
@@ -295,7 +292,6 @@ export const removeUserFromEvent = (userId, eventId) => {
   });
 }
 
-// Check Events User is attending
 export const getEventsUserIsAttending = (reqId, userId) => {
   return new Promise((resolve, reject) => {
     db.all(
@@ -324,7 +320,6 @@ export const getEventsUserIsAttending = (reqId, userId) => {
   });
 }
 
-// Check all users attending an event
 export const getAllEventParticipants = (requesterId, eventId) => {
   return new Promise((resolve, reject) => {
     const checkSql = `
@@ -380,7 +375,11 @@ Friend Methods
 */
 
 
-// Determine standard order of IDs in friend table
+/**
+ * Ensures consistent ordering of user IDs in friend relationships
+ * Friendships are stored bidirectionally (A->B and B->A are the same relationship),
+ * so we always store with the smaller ID first to prevent duplicates and simplify queries.
+ */
 const getFriendOrder = (userId, friendId) => {
   // Smaller user ID first
   if (userId < friendId) {
@@ -389,10 +388,14 @@ const getFriendOrder = (userId, friendId) => {
   return [friendId, userId];
 }
 
-// Send Friend Request
+/**
+ * Send a friend request from userId to friendId
+ * If friendId already sent a request to userId, automatically accept it (mutual friend request)
+ * Otherwise, creates a new pending request
+ */
 export const sendFriendRequest = (userId, friendId) => {
   return new Promise((resolve, reject) => {
-    // Check for pending request
+    // Check if the other user already sent a request (checking reverse direction)
     db.get(
       "SELECT * FROM friends WHERE user_id = ? AND friend_id = ? AND status = 'pending'",
       [friendId, userId],
@@ -401,7 +404,6 @@ export const sendFriendRequest = (userId, friendId) => {
       if (row) {
         return acceptFriendRequest(userId, friendId).then(resolve).catch(reject);
       } else {
-        // Send request
         db.run(
           "INSERT OR IGNORE INTO friends (user_id, friend_id, status, friended_at) VALUES (?, ?, 'pending', CURRENT_TIMESTAMP)",
           [userId, friendId],
@@ -416,10 +418,12 @@ export const sendFriendRequest = (userId, friendId) => {
 });
 };
 
-// Accept Friend Request
+/**
+ * Accept a friend request. The request must exist from friendId -> userId
+ * Deletes the pending request and creates an accepted friendship with consistent ordering
+ */
 export const acceptFriendRequest = (userId, friendId) => {
   return new Promise((resolve, reject) => {
-  // Needs to remove pending request and add accepted in order
   db.get(
     "SELECT * FROM friends WHERE user_id = ? AND friend_id = ? AND status = 'pending'",
     [friendId, userId],
@@ -446,10 +450,8 @@ export const acceptFriendRequest = (userId, friendId) => {
   });
 };
 
-// Reject Friend Request
 export const rejectFriendRequest = (userId, friendId) => {
   return new Promise((resolve, reject) => {
-  // If there is a pending request from the user, delete it
   db.run(
     "DELETE FROM friends WHERE user_id = ? AND friend_id = ? AND status = 'pending'",
     [friendId, userId],
@@ -461,10 +463,8 @@ export const rejectFriendRequest = (userId, friendId) => {
 });
 };
 
-// Remove Friend
 export const deleteFriend = (userId, friendId) => {
   return new Promise((resolve, reject) => {
-  // If the users are friends or if there is a pending request, delete the entry 
   db.run(
     "DELETE FROM friends WHERE user_id = ? AND friend_id = ?",
     getFriendOrder(userId, friendId),
@@ -476,11 +476,8 @@ export const deleteFriend = (userId, friendId) => {
 });
 };
 
-// Get Friends
 export const getFriends = (userId) => {
   return new Promise((resolve, reject) => {
-  // Return all friends of the current user
-  // Should return each friend's: id, name, friended_at
   db.all(
     `SELECT
       u.id, u.name, f.friended_at
@@ -500,10 +497,8 @@ export const getFriends = (userId) => {
 });
 };
 
-// Get Friend Requests
 export const getFriendRequests = (userId) => {
   return new Promise((resolve, reject) => {
-  // Return all friend requests to the current user
   db.all(
     `SELECT 
          f.user_id, 
@@ -526,7 +521,13 @@ export const getFriendRequests = (userId) => {
 });
 };
 
-// Get user profile info, friend status, and rsvped events
+/**
+ * Get user profile including:
+ * - Basic user info and friend count
+ * - Friendship status with requesting user (none/pending/accepted)
+ * - Whether request was initiated by requester or target
+ * - Events the target user is attending (filtered by privacy rules)
+ */
 export const getUserProfile = (targetId, reqId) => {
   return new Promise(async (resolve, reject) => {
     try {
