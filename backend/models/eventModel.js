@@ -235,3 +235,20 @@ export const getAllEventParticipants = (requesterId, eventId) => {
     });
   });
 };
+
+export const getUpcomingEventsWithParticipants = () => {
+  return new Promise((resolve, reject) => {
+    db.all(
+      `SELECT e.title, e.description, e.date, e.location, u.email
+       FROM events e
+       INNER JOIN participants p ON e.id = p.event_id
+       INNER JOIN users u ON p.user_id = u.id
+       WHERE e.date > datetime('now') AND e.date <= datetime('now', '+24 hours')`,
+      [],
+      (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      }
+    );
+  });
+};
