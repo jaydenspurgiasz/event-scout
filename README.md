@@ -72,7 +72,8 @@ Once both servers are running:
 
 1. Open your web browser
 2. Navigate to: http://localhost:3000
-3. You should see the Event Scout homepage with the events list
+3. You should see the Register/Login page
+4. Select Register, enter the corresponding information, and press "Sign Up" to enter the homepage
 
 ## Running Tests
 
