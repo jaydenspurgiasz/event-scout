@@ -1,5 +1,5 @@
 # Event Scout
-Introducing Event Scout, a social media style event hub where anyone can post, find, RSVP to events near them. Event organizers post event flyers and details, attendees create an account and sign up or save certain events. The events are automatically synced with the user’s calendar to push notifications before the event. Each event contains its own “group chat” where attendees can meet online beforehand.
+Introducing Event Scout, a social media style event hub where anyone can post, find, RSVP to events near them. Event organizers post event flyers and details, attendees create an account and RSVP to certain events. Each event contains its own “group chat” where attendees can meet online beforehand. Private events can also be created that are only visible to a user's friends.
 
 ### Running Locally: 
 ### 1. Clone the repo: 
@@ -46,7 +46,7 @@ Run the backend and frontend at the same time
 To start the backend server
 1. Open the terminal window
 2. Navigate to the backend directory: 
- ```bash
+   ```bash
    cd backend
    ```
 3. Start the server:
@@ -87,7 +87,7 @@ To run the backend unit tests:
 
 2. Run the tests:
    ```bash
-   npm test
+   npm run test
    ```
 
 ### End-to-End (E2E) Tests
@@ -110,18 +110,15 @@ This command will:
 - Start the backend server (on port 8000) with a fresh database
 - Start the frontend development server (on port 3000)
 - Wait for both servers to be ready
-- Run the Playwright tests in headed mode (browser window will be visible)
+- Run the Playwright tests
 
-The tests will automatically clean up and shut down both servers when complete.
+**Note:** Make sure you are not already running the backend server or frontend before running the tests. They will not work as the ports the tests use will be taken.
 
-**Note:** Make sure you are not already running the backend server or frontend before running the tests. They will not work if so as the ports the tests use will be taken.
-
-Diagrams:
-![System Architecture](./updated.drawio.png)
+## Diagrams:
+### System Architecture Diagram
+![System Architecture](./architecture-diagram.drawio.png)
 
 This diagram shows the system architecture and how different components interact with each other
-
-Description: 
 
 Frontend (React): 
 Sends HTTP requests to the Express server for data operations and maintains WebSocket connections for real-time chats.
@@ -140,10 +137,9 @@ Users (account information), events (event details), RSVPs (event attendance), a
 Communication: 
 HTTP/Rest APIs handle CRUD operations with JWT auth. 
 
-![UI State Diagram](EventScout-UI-State-Diagram.drawio.png)
+### UI State Diagram
+![UI State Diagram](state-diagram-ui.drawio.png)
 
 This diagram shows the different states of the UI interface and how the states change as you navigate through the UI.
-
-Description:
 
 The website starts at the choice page where the user can choose either to login or to register. In both paths there is a validation process before converging on the the home/eventlist page. From this page the user can go to either the create event page to create a new event assuming the user has input all required fields or the profile page. From the profile page the user can go the friends page where they can traverse to either the friend requests or friend search page. All pages have a back button to take it back to the previous state except for the home page and the first page (choice).
