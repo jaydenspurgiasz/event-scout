@@ -1,6 +1,23 @@
-import { jest } from '@jest/globals';
+/*
 
-jest.unstable_mockModule('../models/eventModel.js', () => ({
+THIS FILE IS AI GENERATED
+
+Model: Claude Code, Sonnet 4.5
+
+Prompt:
+Role: You are a senior software engineer who specializes in Test-Driven Development and backend APIs. Your job is to write high-quality tests based on the information provided.
+Task: Generate a complete test suite using jest for the functions in controllers/eventController.js. Do not write any implementation or production code and do not assume any logic for the function. Leave a brief comment detailing the purpose of each test case.
+
+
+Output:
+Because I used Claude Code, the output was not text but the model directly created and editied this file.
+Thus, the output of the model is the file seen here.
+
+*/
+
+import { jest } from "@jest/globals";
+
+jest.unstable_mockModule("../models/eventModel.js", () => ({
   createEvent: jest.fn(),
   getPublicEvents: jest.fn(),
   getAllEvents: jest.fn(),
@@ -20,8 +37,8 @@ const {
   getEventsByTitle,
   addUserToEvent,
   removeUserFromEvent,
-  getAllEventParticipants
-} = await import('../models/eventModel.js');
+  getAllEventParticipants,
+} = await import("../models/eventModel.js");
 
 const {
   addEvent,
@@ -30,10 +47,10 @@ const {
   searchEventsByTitle,
   getEventParticipants,
   rsvpUserToEvent,
-  unRsvpUserFromEvent
-} = await import('../controllers/eventController.js');
+  unRsvpUserFromEvent,
+} = await import("../controllers/eventController.js");
 
-describe('Event Controller', () => {
+describe("Event Controller", () => {
   let req, res;
 
   beforeEach(() => {
@@ -41,60 +58,65 @@ describe('Event Controller', () => {
       user: { id: 1 },
       body: {},
       params: {},
-      query: {}
+      query: {},
     };
     res = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn()
+      json: jest.fn(),
     };
     jest.clearAllMocks();
   });
 
-  describe('addEvent', () => {
+  describe("addEvent", () => {
     // Successfully create a new event
-    test('Create event successfully', async () => {
+    test("Create event successfully", async () => {
       req.body = {
-        title: 'New Event',
-        description: 'Desc',
-        date: '2025-01-01',
-        location: 'Loc',
-        priv: false
+        title: "New Event",
+        description: "Desc",
+        date: "2025-01-01",
+        location: "Loc",
+        priv: false,
       };
-      const mockEvent = { id: 1, title: 'New Event' };
+      const mockEvent = { id: 1, title: "New Event" };
       createEvent.mockResolvedValue(mockEvent);
 
       await addEvent(req, res);
 
       expect(createEvent).toHaveBeenCalledWith(
-        'New Event', 'Desc', '2025-01-01', 'Loc', false, 1
+        "New Event",
+        "Desc",
+        "2025-01-01",
+        "Loc",
+        false,
+        1
       );
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith(mockEvent);
     });
 
     // Handle errors when creating event
-    test('Handle creation error', async () => {
+    test("Handle creation error", async () => {
       req.body = {
-        title: 'New Event',
-        description: 'Desc',
-        date: '2025-01-01',
-        location: 'Loc',
-        priv: false
+        title: "New Event",
+        description: "Desc",
+        date: "2025-01-01",
+        location: "Loc",
+        priv: false,
       };
-      createEvent.mockRejectedValue(new Error('DB Error'));
+      createEvent.mockRejectedValue(new Error("DB Error"));
 
       await addEvent(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: 'DB Error' });
+      expect(res.json).toHaveBeenCalledWith({ error: "DB Error" });
     });
   });
 
-  describe('searchEvents', () => {
+  describe("searchEvents", () => {
     // Return public events when user is not authenticated
-    test('Get public events for unauthenticated user', async () => {
+    test("Get public events for unauthenticated user", async () => {
       req.user.id = null;
-      const mockEvents = [{ id: 1, title: 'Public Event' }];
+      const mockEvents = [{ id: 1, title: "Public Event" }];
       getPublicEvents.mockResolvedValue(mockEvents);
 
       await searchEvents(req, res);
@@ -105,8 +127,11 @@ describe('Event Controller', () => {
     });
 
     // Return all events when user is authenticated
-    test('Get all events for authenticated user', async () => {
-      const mockEvents = [{ id: 1, title: 'Event 1' }, { id: 2, title: 'Event 2' }];
+    test("Get all events for authenticated user", async () => {
+      const mockEvents = [
+        { id: 1, title: "Event 1" },
+        { id: 2, title: "Event 2" },
+      ];
       getAllEvents.mockResolvedValue(mockEvents);
 
       await searchEvents(req, res);
@@ -117,154 +142,163 @@ describe('Event Controller', () => {
     });
 
     // Handle errors when fetching public events
-    test('Handle error fetching public events', async () => {
+    test("Handle error fetching public events", async () => {
       req.user.id = null;
-      getPublicEvents.mockRejectedValue(new Error('DB Error'));
+      getPublicEvents.mockRejectedValue(new Error("DB Error"));
 
       await searchEvents(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: 'DB Error' });
+      expect(res.json).toHaveBeenCalledWith({ error: "DB Error" });
     });
 
     // Handle errors when fetching all events
-    test('Handle error fetching all events', async () => {
-      getAllEvents.mockRejectedValue(new Error('DB Error'));
+    test("Handle error fetching all events", async () => {
+      getAllEvents.mockRejectedValue(new Error("DB Error"));
 
       await searchEvents(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: 'DB Error' });
+      expect(res.json).toHaveBeenCalledWith({ error: "DB Error" });
     });
   });
 
-  describe('searchEventById', () => {
+  describe("searchEventById", () => {
     // Return event by ID successfully
-    test('Get event by ID', async () => {
-      req.params = { id: '1' };
-      const mockEvent = { id: 1, title: 'Event 1' };
+    test("Get event by ID", async () => {
+      req.params = { id: "1" };
+      const mockEvent = { id: 1, title: "Event 1" };
       getEventById.mockResolvedValue(mockEvent);
 
       await searchEventById(req, res);
 
-      expect(getEventById).toHaveBeenCalledWith('1', 1);
+      expect(getEventById).toHaveBeenCalledWith("1", 1);
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(mockEvent);
     });
 
     // Handle errors when fetching event by ID
-    test('Handle error fetching event by ID', async () => {
-      req.params = { id: '1' };
-      getEventById.mockRejectedValue(new Error('DB Error'));
+    test("Handle error fetching event by ID", async () => {
+      req.params = { id: "1" };
+      getEventById.mockRejectedValue(new Error("DB Error"));
 
       await searchEventById(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: 'DB Error' });
+      expect(res.json).toHaveBeenCalledWith({ error: "DB Error" });
     });
   });
 
-  describe('searchEventsByTitle', () => {
+  describe("searchEventsByTitle", () => {
     // Return events matching title search
-    test('Get events by title', async () => {
-      req.query = { title: 'Test' };
-      const mockEvents = [{ id: 1, title: 'Test Event' }];
+    test("Get events by title", async () => {
+      req.query = { title: "Test" };
+      const mockEvents = [{ id: 1, title: "Test Event" }];
       getEventsByTitle.mockResolvedValue(mockEvents);
 
       await searchEventsByTitle(req, res);
 
-      expect(getEventsByTitle).toHaveBeenCalledWith('Test', 1);
+      expect(getEventsByTitle).toHaveBeenCalledWith("Test", 1);
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(mockEvents);
     });
 
     // Handle errors when searching events by title
-    test('Handle error searching events by title', async () => {
-      req.query = { title: 'Test' };
-      getEventsByTitle.mockRejectedValue(new Error('DB Error'));
+    test("Handle error searching events by title", async () => {
+      req.query = { title: "Test" };
+      getEventsByTitle.mockRejectedValue(new Error("DB Error"));
 
       await searchEventsByTitle(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: 'DB Error' });
+      expect(res.json).toHaveBeenCalledWith({ error: "DB Error" });
     });
   });
 
-  describe('rsvpUserToEvent', () => {
+  describe("rsvpUserToEvent", () => {
     // Successfully RSVP user to event
-    test('RSVP user to event successfully', async () => {
-      req.params = { id: '123' };
+    test("RSVP user to event successfully", async () => {
+      req.params = { id: "123" };
       addUserToEvent.mockResolvedValue();
 
       await rsvpUserToEvent(req, res);
 
-      expect(addUserToEvent).toHaveBeenCalledWith(1, '123');
+      expect(addUserToEvent).toHaveBeenCalledWith(1, "123");
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ message: 'RSVPed user to event.' });
+      expect(res.json).toHaveBeenCalledWith({
+        message: "RSVPed user to event.",
+      });
     });
 
     // Handle errors when RSVPing to event
-    test('Handle error RSVPing to event', async () => {
-      req.params = { id: '123' };
-      addUserToEvent.mockRejectedValue(new Error('Event not found.'));
+    test("Handle error RSVPing to event", async () => {
+      req.params = { id: "123" };
+      addUserToEvent.mockRejectedValue(new Error("Event not found."));
 
       await rsvpUserToEvent(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Event not found.' });
+      expect(res.json).toHaveBeenCalledWith({ error: "Event not found." });
     });
   });
 
-  describe('unRsvpUserFromEvent', () => {
+  describe("unRsvpUserFromEvent", () => {
     // Successfully unRSVP user from event
-    test('UnRSVP user from event successfully', async () => {
-      req.params = { id: '123' };
+    test("UnRSVP user from event successfully", async () => {
+      req.params = { id: "123" };
       removeUserFromEvent.mockResolvedValue();
 
       await unRsvpUserFromEvent(req, res);
 
-      expect(removeUserFromEvent).toHaveBeenCalledWith(1, '123');
+      expect(removeUserFromEvent).toHaveBeenCalledWith(1, "123");
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ message: 'unRSVPed user from event.' });
+      expect(res.json).toHaveBeenCalledWith({
+        message: "unRSVPed user from event.",
+      });
     });
 
     // Handle errors when unRSVPing from event
-    test('Handle error unRSVPing from event', async () => {
-      req.params = { id: '123' };
-      removeUserFromEvent.mockRejectedValue(new Error('DB Error'));
+    test("Handle error unRSVPing from event", async () => {
+      req.params = { id: "123" };
+      removeUserFromEvent.mockRejectedValue(new Error("DB Error"));
 
       await unRsvpUserFromEvent(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: 'DB Error' });
+      expect(res.json).toHaveBeenCalledWith({ error: "DB Error" });
     });
   });
 
-  describe('getEventParticipants', () => {
+  describe("getEventParticipants", () => {
     // Successfully get event participants
-    test('Get event participants successfully', async () => {
-      req.params = { id: '123' };
+    test("Get event participants successfully", async () => {
+      req.params = { id: "123" };
       const mockParticipants = [
-        { id: 2, email: 'user2@example.com', first_name: 'John', created_at: '2025-01-01' }
+        {
+          id: 2,
+          email: "user2@example.com",
+          first_name: "John",
+          created_at: "2025-01-01",
+        },
       ];
       getAllEventParticipants.mockResolvedValue(mockParticipants);
 
       await getEventParticipants(req, res);
 
-      expect(getAllEventParticipants).toHaveBeenCalledWith(1, '123');
+      expect(getAllEventParticipants).toHaveBeenCalledWith(1, "123");
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(mockParticipants);
     });
 
     // Handle errors when getting participants
-    test('Handle error getting participants', async () => {
-      req.params = { id: '123' };
-      getAllEventParticipants.mockRejectedValue(new Error('Event not found.'));
+    test("Handle error getting participants", async () => {
+      req.params = { id: "123" };
+      getAllEventParticipants.mockRejectedValue(new Error("Event not found."));
 
       await getEventParticipants(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Event not found.' });
+      expect(res.json).toHaveBeenCalledWith({ error: "Event not found." });
     });
   });
 });

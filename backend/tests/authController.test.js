@@ -1,31 +1,50 @@
-import { jest } from '@jest/globals';
+/*
 
-jest.unstable_mockModule('../models/userModel.js', () => ({
+THIS FILE IS AI GENERATED
+
+Model: Claude Code, Sonnet 4.5 Thinking Mode
+
+Prompt:
+Role: You are a senior software engineer who specializes in Test-Driven Development and backend APIs. Your job is to write high-quality tests based on the information provided.
+Task: Generate a complete test suite using jest for the functions in controllers/authController.js. Do not write any implementation or production code and do not assume any logic for the function. Leave a brief comment detailing the purpose of each test case.
+
+
+Output:
+Because I used Claude Code, the output was not text but the model directly created and editied this file.
+Thus, the output of the model is the file seen here.
+
+*/
+
+import { jest } from "@jest/globals";
+
+jest.unstable_mockModule("../models/userModel.js", () => ({
   createUser: jest.fn(),
   getUserByEmail: jest.fn(),
   getUserById: jest.fn(),
   getAuthCredentials: jest.fn(),
 }));
 
-jest.unstable_mockModule('bcrypt', () => ({
+jest.unstable_mockModule("bcrypt", () => ({
   default: {
-    hashSync: jest.fn().mockReturnValue('hashed_password'),
+    hashSync: jest.fn().mockReturnValue("hashed_password"),
     compareSync: jest.fn(),
-  }
+  },
 }));
 
-jest.unstable_mockModule('jsonwebtoken', () => ({
+jest.unstable_mockModule("jsonwebtoken", () => ({
   default: {
-    sign: jest.fn().mockReturnValue('mock_token'),
-  }
+    sign: jest.fn().mockReturnValue("mock_token"),
+  },
 }));
 
-const { createUser, getUserByEmail, getAuthCredentials } = await import('../models/userModel.js');
+const { createUser, getUserByEmail, getAuthCredentials } = await import(
+  "../models/userModel.js"
+);
 const bcrypt = (await import("bcrypt")).default;
 const jwt = (await import("jsonwebtoken")).default;
-const { register, login } = await import('../controllers/authController.js');
+const { register, login } = await import("../controllers/authController.js");
 
-describe('Auth Controller', () => {
+describe("Auth Controller", () => {
   let req, res;
 
   beforeEach(() => {
@@ -38,98 +57,103 @@ describe('Auth Controller', () => {
     jest.clearAllMocks();
   });
 
-  describe('Register', () => {
+  describe("Register", () => {
     // Successfully register a new user
-    test('Register New User', async () => {
+    test("Register New User", async () => {
       req.body = {
-        email: 'test@example.com',
-        pass: 'password123',
-        name: 'John'
+        email: "test@example.com",
+        pass: "password123",
+        name: "John",
       };
       createUser.mockResolvedValue(1);
 
       await register(req, res);
 
-      expect(bcrypt.hashSync).toHaveBeenCalledWith('password123', 10);
+      expect(bcrypt.hashSync).toHaveBeenCalledWith("password123", 10);
       expect(createUser).toHaveBeenCalledWith(
-        'test@example.com',
-        'hashed_password',
-        'John'
+        "test@example.com",
+        "hashed_password",
+        "John"
       );
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ message: 'User created' });
+      expect(res.json).toHaveBeenCalledWith({ message: "User created" });
     });
 
     // Reject registration when email already exists
-    test('Register Existing User', async () => {
+    test("Register Existing User", async () => {
       req.body = {
-        email: 'existing@example.com',
-        pass: 'password123',
-        name: 'Jane'
+        email: "existing@example.com",
+        pass: "password123",
+        name: "Jane",
       };
-      createUser.mockRejectedValue(new Error('UNIQUE constraint failed'));
+      createUser.mockRejectedValue(new Error("UNIQUE constraint failed"));
 
       await register(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Email already in use' });
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Email already in use",
+      });
     });
   });
 
-  describe('Login', () => {
+  describe("Login", () => {
     // Successfully login with valid credentials and set cookie
-    test('Valid Login', async () => {
+    test("Valid Login", async () => {
       req.body = {
-        email: 'test@example.com',
-        pass: 'password123'
+        email: "test@example.com",
+        pass: "password123",
       };
       const mockUser = {
         id: 1,
-        email: 'test@example.com',
-        password: 'hashed_password'
+        email: "test@example.com",
+        password: "hashed_password",
       };
       getAuthCredentials.mockResolvedValue(mockUser);
       bcrypt.compareSync.mockReturnValue(true);
 
       await login(req, res);
 
-      expect(getAuthCredentials).toHaveBeenCalledWith('test@example.com');
-      expect(bcrypt.compareSync).toHaveBeenCalledWith('password123', 'hashed_password');
+      expect(getAuthCredentials).toHaveBeenCalledWith("test@example.com");
+      expect(bcrypt.compareSync).toHaveBeenCalledWith(
+        "password123",
+        "hashed_password"
+      );
       expect(jwt.sign).toHaveBeenCalled();
-      expect(res.cookie).toHaveBeenCalledWith('token', 'mock_token', {
+      expect(res.cookie).toHaveBeenCalledWith("token", "mock_token", {
         httpOnly: true,
         secure: false,
-        sameSite: 'strict',
-        maxAge: 1800000
+        sameSite: "strict",
+        maxAge: 1800000,
       });
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Login successful' });
+      expect(res.json).toHaveBeenCalledWith({ message: "Login successful" });
     });
 
     // Reject login when email doesn't exist
-    test('Invalid Email', async () => {
+    test("Invalid Email", async () => {
       req.body = {
-        email: 'nonexistent@example.com',
-        pass: 'password123'
+        email: "nonexistent@example.com",
+        pass: "password123",
       };
       getAuthCredentials.mockResolvedValue(undefined);
 
       await login(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Invalid login' });
+      expect(res.json).toHaveBeenCalledWith({ message: "Invalid login" });
     });
 
     // Reject login when password is incorrect
-    test('Invalid Password', async () => {
+    test("Invalid Password", async () => {
       req.body = {
-        email: 'test@example.com',
-        pass: 'wrongpassword'
+        email: "test@example.com",
+        pass: "wrongpassword",
       };
       const mockUser = {
         id: 1,
-        email: 'test@example.com',
-        password: 'hashed_password'
+        email: "test@example.com",
+        password: "hashed_password",
       };
       getAuthCredentials.mockResolvedValue(mockUser);
       bcrypt.compareSync.mockReturnValue(false);
@@ -137,21 +161,21 @@ describe('Auth Controller', () => {
       await login(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Invalid login' });
+      expect(res.json).toHaveBeenCalledWith({ message: "Invalid login" });
     });
 
     // Handle database errors during login
-    test('Server Error', async () => {
+    test("Server Error", async () => {
       req.body = {
-        email: 'test@example.com',
-        pass: 'password123'
+        email: "test@example.com",
+        pass: "password123",
       };
-      getAuthCredentials.mockRejectedValue(new Error('DB Error'));
+      getAuthCredentials.mockRejectedValue(new Error("DB Error"));
 
       await login(req, res);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Server error' });
+      expect(res.json).toHaveBeenCalledWith({ message: "Server error" });
     });
   });
 });

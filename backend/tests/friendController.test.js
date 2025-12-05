@@ -1,6 +1,23 @@
-import { jest } from '@jest/globals';
+/*
 
-jest.unstable_mockModule('../models/friendModel.js', () => ({
+THIS FILE IS AI GENERATED
+
+Model: Claude Code, Sonnet 4.5
+
+Prompt:
+Role: You are a senior software engineer who specializes in Test-Driven Development and backend APIs. Your job is to write high-quality tests based on the information provided.
+Task: Generate a complete test suite using jest for the functions in controllers/friendController.js. Do not write any implementation or production code and do not assume any logic for the function. Leave a brief comment detailing the purpose of each test case.
+
+
+Output:
+Because I used Claude Code, the output was not text but the model directly created and editied this file.
+Thus, the output of the model is the file seen here.
+
+*/
+
+import { jest } from "@jest/globals";
+
+jest.unstable_mockModule("../models/friendModel.js", () => ({
   sendFriendRequest: jest.fn(),
   acceptFriendRequest: jest.fn(),
   rejectFriendRequest: jest.fn(),
@@ -15,8 +32,8 @@ const {
   rejectFriendRequest,
   deleteFriend,
   getFriends,
-  getFriendRequests
-} = await import('../models/friendModel.js');
+  getFriendRequests,
+} = await import("../models/friendModel.js");
 
 const {
   sendRequest,
@@ -24,28 +41,28 @@ const {
   rejectRequest,
   removeFriend,
   getAllFriends,
-  getRequests
-} = await import('../controllers/friendController.js');
+  getRequests,
+} = await import("../controllers/friendController.js");
 
-describe('Friend Controller', () => {
+describe("Friend Controller", () => {
   let req, res;
 
   beforeEach(() => {
     req = {
       user: { id: 1 },
       body: {},
-      params: {}
+      params: {},
     };
     res = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn()
+      json: jest.fn(),
     };
     jest.clearAllMocks();
   });
 
-  describe('sendRequest', () => {
+  describe("sendRequest", () => {
     // Successfully send friend request
-    test('Send friend request successfully', async () => {
+    test("Send friend request successfully", async () => {
       req.body = { friendId: 2 };
       sendFriendRequest.mockResolvedValue();
 
@@ -53,13 +70,13 @@ describe('Friend Controller', () => {
 
       expect(sendFriendRequest).toHaveBeenCalledWith(1, 2);
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Friend request sent' });
+      expect(res.json).toHaveBeenCalledWith({ message: "Friend request sent" });
     });
   });
 
-  describe('acceptRequest', () => {
+  describe("acceptRequest", () => {
     // Successfully accept friend request
-    test('Accept friend request successfully', async () => {
+    test("Accept friend request successfully", async () => {
       req.body = { friendId: 2 };
       acceptFriendRequest.mockResolvedValue();
 
@@ -67,13 +84,15 @@ describe('Friend Controller', () => {
 
       expect(acceptFriendRequest).toHaveBeenCalledWith(1, 2);
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Friend request accepted' });
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Friend request accepted",
+      });
     });
   });
 
-  describe('rejectRequest', () => {
+  describe("rejectRequest", () => {
     // Successfully reject friend request
-    test('Reject friend request successfully', async () => {
+    test("Reject friend request successfully", async () => {
       req.body = { friendId: 2 };
       rejectFriendRequest.mockResolvedValue();
 
@@ -81,13 +100,15 @@ describe('Friend Controller', () => {
 
       expect(rejectFriendRequest).toHaveBeenCalledWith(1, 2);
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Friend request rejected' });
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Friend request rejected",
+      });
     });
   });
 
-  describe('removeFriend', () => {
+  describe("removeFriend", () => {
     // Successfully remove friend
-    test('Remove friend successfully', async () => {
+    test("Remove friend successfully", async () => {
       req.body = { friendId: 2 };
       deleteFriend.mockResolvedValue();
 
@@ -95,14 +116,14 @@ describe('Friend Controller', () => {
 
       expect(deleteFriend).toHaveBeenCalledWith(1, 2);
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Friend removed' });
+      expect(res.json).toHaveBeenCalledWith({ message: "Friend removed" });
     });
   });
 
-  describe('getAllFriends', () => {
+  describe("getAllFriends", () => {
     // Successfully return list of friends
-    test('Get list of friends', async () => {
-      const mockFriends = [{ id: 2, name: 'Friend' }];
+    test("Get list of friends", async () => {
+      const mockFriends = [{ id: 2, name: "Friend" }];
       getFriends.mockResolvedValue(mockFriends);
 
       await getAllFriends(req, res);
@@ -113,10 +134,10 @@ describe('Friend Controller', () => {
     });
   });
 
-  describe('getRequests', () => {
+  describe("getRequests", () => {
     // Successfully return list of friend requests
-    test('Get list of friend requests', async () => {
-      const mockRequests = [{ user_id: 2, status: 'pending' }];
+    test("Get list of friend requests", async () => {
+      const mockRequests = [{ user_id: 2, status: "pending" }];
       getFriendRequests.mockResolvedValue(mockRequests);
 
       await getRequests(req, res);
