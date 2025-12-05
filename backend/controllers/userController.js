@@ -1,6 +1,5 @@
 import { getUserByEmail, getUsersByName, getAllUsers, getUserProfile } from "../models/db.js";
 
-// Get a user ID by their email
 export const searchUserByEmail = async (req, res) => {
     const {email} = req.body;
     try {
@@ -14,7 +13,6 @@ export const searchUserByEmail = async (req, res) => {
     }
 };
 
-// Get user IDs by name
 export const searchUsersByName = async (req, res) => {
     const {name} = req.body;
     try {
@@ -37,7 +35,6 @@ export const searchUsers = async (req, res) => {
     }
 }
 
-// Get user profile by ID
 export const searchUserById = async (req, res) => {
     const { id } = req.params;
     const reqId = req.user.id;

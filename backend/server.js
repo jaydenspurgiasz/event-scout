@@ -38,7 +38,12 @@ app.get("/health", (req, res) => {
 
 app.use("/api", apiRoutes);
 
+/**
+ * Socket.io event handlers for chat functionality
+ * Each event has its own room (event_<eventId>)
+ */
 io.on("connection", (socket) => {
+  // Join event room and send message history to the new connection
   socket.on("join_event", (data) => {
     socket.join(`event_${data.eventId}`);
     getMessages(data.eventId, (err, messages) => {
@@ -48,6 +53,7 @@ io.on("connection", (socket) => {
     });
   });
 
+  // Save message to database and broadcast to all users in the event room
   socket.on("send_message", (data) => {
     saveMessage(data.eventId, data.userId, data.message, (err) => {
       if (!err) {

@@ -4,16 +4,16 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// API endpoint for user signup
+// Register a new user
 router.post("/register", register);
 
-// API endpoint for user signin
+// Login an existing user
 router.post("/login", login);
 
-// API endpoint for user logout
+// Logout a currently logged in user
 router.post("/logout", logout);
 
-// API endpoint to get current authenticated user info
+// Get current authenticated user's info
 router.get("/me", protect, verify);
 
 export default router;

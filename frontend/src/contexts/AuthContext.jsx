@@ -37,6 +37,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Register a new user and automatically log them in
+   */
   const register = async (name, email, password) => {
     try {
       await authAPI.register(name, email, password);
