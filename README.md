@@ -98,4 +98,10 @@ Users (account information), events (event details), RSVPs (event attendance), a
 Communication: 
 HTTP/Rest APIs handle CRUD operations with JWT auth. 
 
+![UI State Diagram](EventScout-UI-State-Diagram.drawio.png)
 
+This Diagram shows the different states of the UI interface and how each the states change as you navigate through the UI.
+
+Description:
+
+The website starts at the choice page where the user can choose either to login or to register. In both paths there is a validation process before converging on the the home/eventlist page. From this page the user can go to either the create event page to create a new event assuming the user has input all required fields or the profile page. From the profile page the user can go the friends page where they can traverse to either the friend requests or friend search page. All pages have a back button to take it back to the previous state except for the home page and the first page (choice).
