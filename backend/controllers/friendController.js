@@ -1,4 +1,5 @@
-import { sendFriendRequest, acceptFriendRequest, rejectFriendRequest, deleteFriend, getFriends, getFriendRequests, getUsersByName } from "../models/db.js";
+import { sendFriendRequest, acceptFriendRequest, rejectFriendRequest, deleteFriend, getFriends, getFriendRequests } from "../models/friendModel.js";
+import { getUsersByName } from "../models/userModel.js";
 
 export const sendRequest = async (req, res) => {
     const id = req.user.id;

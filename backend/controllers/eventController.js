@@ -1,4 +1,4 @@
-import { createEvent, getPublicEvents, getAllEvents, getEventById, getEventsByTitle, addUserToEvent, removeUserFromEvent, getAllEventParticipants, getEventsUserIsAttending } from "../models/db.js";
+import { createEvent, getPublicEvents, getAllEvents, getEventById, getEventsByTitle, addUserToEvent, removeUserFromEvent, getAllEventParticipants, getEventsUserIsAttending } from "../models/eventModel.js";
 
 export const addEvent = async (req, res) => {
     const { id } = req.user;

@@ -1,4 +1,4 @@
-import { getUserByEmail, getUsersByName, getAllUsers, getUserProfile } from "../models/db.js";
+import { getUserByEmail, getUsersByName, getAllUsers, getUserProfile } from "../models/userModel.js";
 
 export const searchUserByEmail = async (req, res) => {
     const {email} = req.body;

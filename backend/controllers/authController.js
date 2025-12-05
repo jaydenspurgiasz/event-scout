@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { createUser, getAuthCredentials, getUserById } from "../models/db.js";
+import { createUser, getAuthCredentials, getUserById } from "../models/userModel.js";
 
 const getSecret = () => {
   if (!process.env.JWT_SECRET) {
