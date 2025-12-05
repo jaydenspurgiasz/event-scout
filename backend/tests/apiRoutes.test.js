@@ -5,12 +5,17 @@ import express from 'express';
 import request from 'supertest';
 import cookieParser from 'cookie-parser';
 
-jest.unstable_mockModule('../models/db.js', () => ({
+jest.unstable_mockModule('../models/userModel.js', () => ({
   createUser: jest.fn(),
   getUserByEmail: jest.fn(),
   getUserById: jest.fn(),
   getUsersByName: jest.fn(),
   getAuthCredentials: jest.fn(),
+  getAllUsers: jest.fn(),
+  getUserProfile: jest.fn(),
+}));
+
+jest.unstable_mockModule('../models/eventModel.js', () => ({
   createEvent: jest.fn(),
   getPublicEvents: jest.fn(),
   getAllEvents: jest.fn(),
@@ -20,6 +25,9 @@ jest.unstable_mockModule('../models/db.js', () => ({
   removeUserFromEvent: jest.fn(),
   getAllEventParticipants: jest.fn(),
   getEventsUserIsAttending: jest.fn(),
+}));
+
+jest.unstable_mockModule('../models/friendModel.js', () => ({
   sendFriendRequest: jest.fn(),
   acceptFriendRequest: jest.fn(),
   rejectFriendRequest: jest.fn(),
@@ -42,7 +50,10 @@ jest.unstable_mockModule('jsonwebtoken', () => ({
   }
 }));
 
-const db = await import('../models/db.js');
+const userModel = await import('../models/userModel.js');
+const eventModel = await import('../models/eventModel.js');
+const friendModel = await import('../models/friendModel.js');
+const db = { ...userModel, ...eventModel, ...friendModel };
 const bcrypt = (await import('bcrypt')).default;
 const jwt = (await import('jsonwebtoken')).default;
 const apiRoutes = (await import('../routes/apiRoutes.js')).default;

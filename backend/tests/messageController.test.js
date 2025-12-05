@@ -14,7 +14,8 @@ beforeAll((done) => {
     mockDb.run(`
       CREATE TABLE users (
         id INTEGER PRIMARY KEY,
-        email TEXT
+        email TEXT,
+        name TEXT
       )
     `);
     

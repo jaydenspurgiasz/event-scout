@@ -7,16 +7,9 @@ jest.unstable_mockModule('../config/database.js', () => ({
   default: db
 }));
 
-const {
-  initializeDatabase,
-  createUser,
-  getUserByEmail,
-  createEvent,
-  getPublicEvents,
-  getAllEvents,
-  getEventById,
-  getEventsByTitle
-} = await import('../models/db.js');
+const { initializeDatabase } = await import('../models/db.js');
+const { createUser, getUserByEmail } = await import('../models/userModel.js');
+const { createEvent, getPublicEvents, getAllEvents, getEventById, getEventsByTitle } = await import('../models/eventModel.js');
 
 beforeAll(async () => {
   await initializeDatabase();

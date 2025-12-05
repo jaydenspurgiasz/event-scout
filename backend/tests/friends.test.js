@@ -7,16 +7,9 @@ jest.unstable_mockModule('../config/database.js', () => ({
   default: db
 }));
 
-const {
-  initializeDatabase,
-  createUser,
-  sendFriendRequest,
-  acceptFriendRequest,
-  rejectFriendRequest,
-  getFriends,
-  getFriendRequests,
-  deleteFriend
-} = await import('../models/db.js');
+const { initializeDatabase } = await import('../models/db.js');
+const { createUser } = await import('../models/userModel.js');
+const { sendFriendRequest, acceptFriendRequest, rejectFriendRequest, getFriends, getFriendRequests, deleteFriend } = await import('../models/friendModel.js');
 
 beforeEach(async () => {
   await initializeDatabase();

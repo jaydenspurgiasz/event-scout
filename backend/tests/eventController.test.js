@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 
-jest.unstable_mockModule('../models/db.js', () => ({
+jest.unstable_mockModule('../models/eventModel.js', () => ({
   createEvent: jest.fn(),
   getPublicEvents: jest.fn(),
   getAllEvents: jest.fn(),
@@ -21,7 +21,7 @@ const {
   addUserToEvent,
   removeUserFromEvent,
   getAllEventParticipants
-} = await import('../models/db.js');
+} = await import('../models/eventModel.js');
 
 const {
   addEvent,

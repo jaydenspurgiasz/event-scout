@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 
-jest.unstable_mockModule('../models/db.js', () => ({
+jest.unstable_mockModule('../models/userModel.js', () => ({
   createUser: jest.fn(),
   getUserByEmail: jest.fn(),
   getUserById: jest.fn(),
@@ -20,7 +20,7 @@ jest.unstable_mockModule('jsonwebtoken', () => ({
   }
 }));
 
-const { createUser, getUserByEmail, getAuthCredentials } = await import('../models/db.js');
+const { createUser, getUserByEmail, getAuthCredentials } = await import('../models/userModel.js');
 const bcrypt = (await import("bcrypt")).default;
 const jwt = (await import("jsonwebtoken")).default;
 const { register, login } = await import('../controllers/authController.js');

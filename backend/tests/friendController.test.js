@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 
-jest.unstable_mockModule('../models/db.js', () => ({
+jest.unstable_mockModule('../models/friendModel.js', () => ({
   sendFriendRequest: jest.fn(),
   acceptFriendRequest: jest.fn(),
   rejectFriendRequest: jest.fn(),
@@ -16,7 +16,7 @@ const {
   deleteFriend,
   getFriends,
   getFriendRequests
-} = await import('../models/db.js');
+} = await import('../models/friendModel.js');
 
 const {
   sendRequest,
