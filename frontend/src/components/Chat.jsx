@@ -14,6 +14,15 @@ export function ChatRoom() {
     const [messages, setMessages] = useState([]);
     const [eventTitle, setEventTitle] = useState("Event Chat");
     const socketRef = useRef(null);
+    const messagesEndRef = useRef(null);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView();
+    };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
 
     useEffect(() => {
         if (!chatId) return;
@@ -91,6 +100,7 @@ export function ChatRoom() {
                 </div>
               </div>
             ))}
+            <div ref={messagesEndRef} />
           </div>
           <div className="message-input-container">
             <input
