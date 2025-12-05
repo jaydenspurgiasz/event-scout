@@ -18,7 +18,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "e2e": "concurrently --kill-others \"npm run playwright-test --prefix ../backend\" \"npm run start\" \"wait-on http://localhost:3000 && npx playwright test --headed\""
   },
   "eslintConfig": {
     "extends": [
@@ -37,5 +38,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "concurrently": "^9.2.1",
+    "wait-on": "^9.0.3"
   }
 }
