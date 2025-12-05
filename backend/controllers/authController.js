@@ -10,6 +10,10 @@ const getSecret = () => {
   return process.env.JWT_SECRET;
 }
 
+/**
+ * Register a new user. Hashes password with bcrypt
+ * Returns 400 if email already exists
+ */
 export const register = async (req, res) => {
   const { email, pass, name } = req.body;
   
@@ -30,6 +34,11 @@ export const register = async (req, res) => {
   }
 };
 
+/**
+ * Authenticate user and set JWT token in cookie
+ * Token expires in 30 minutes
+ * Returns "Invalid login" for both wrong email and wrong password
+ */
 export const login = async (req, res) => {
   const { email, pass } = req.body;
   

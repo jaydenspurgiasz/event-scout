@@ -18,10 +18,10 @@ router.post("/reject", rejectRequest);
 // Remove friend
 router.post("/remove", removeFriend);
 
-// Get friends
+// Get current user's friends
 router.get("/friends", getAllFriends);
 
-// Get friends of a user
+// Get friends of a specified user
 router.get("/friends/:userId", getFriendsOfUser);
 
 // Get friend requests

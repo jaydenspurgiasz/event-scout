@@ -12,6 +12,11 @@ export const addEvent = async (req, res) => {
     }
 };
 
+/**
+ * Search events with different visibility based on authentication
+ * Unauthenticated users: only public events
+ * Authenticated users: public events + private events from friends + own private events
+ */
 export const searchEvents = async (req, res) => {
     if (req.user.id === null) {
         try {

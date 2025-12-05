@@ -12,6 +12,10 @@ export default function FriendSearch() {
 
   const { user: currentUser } = useAuth();
 
+  /**
+   * Filter out users who are already friends or the current user
+   * Uses a Set for O(1) lookup when checking friend status
+   */
   const filterExistingFriends = (users, friendIds) => {
     return users.filter(user => {
       const isFriend = friendIds.has(user.id);
@@ -20,16 +24,18 @@ export default function FriendSearch() {
     });
   }
 
-  // Load existing friends first, then load all users
+  /**
+   * Load friends list first, then filter all users
+   * This approach ensures we don't show users who are already friends
+   * or allow users to friend themselves
+   */
   useEffect(() => {
     const initialize = async () => {
       setLoading(true);
       try {
-        // Load existing friends
         const myFriends = await friendsAPI.getAllFriends();
         const ids = Array.isArray(myFriends) ? new Set(myFriends.map(f => f.id)) : new Set();
         
-        // Then load all users
         const allUsers = await usersAPI.search();
         const filteredUsers = filterExistingFriends(Array.isArray(allUsers) ? allUsers : [], ids);
         setUsers(filteredUsers);
@@ -40,7 +46,7 @@ export default function FriendSearch() {
       }
     };
     initialize();
-  }, []); // Only run on mount
+  }, []);
 
   // Client-side filtering using useMemo (same as EventsList)
   const filteredUsers = useMemo(() => {
