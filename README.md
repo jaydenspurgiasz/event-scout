@@ -1,7 +1,7 @@
 # Event Scout
 Introducing Event Scout, a social media style event hub where anyone can post, find, RSVP to events near them. Event organizers post event flyers and details, attendees create an account and RSVP to certain events. Each event contains its own “group chat” where attendees can meet online beforehand. Private events can also be created that are only visible to a user's friends.
 
-### Running Locally: 
+## Running Locally
 ### 1. Clone the repo: 
 ```bash
 git clone https://github.com/jaydenspurgiasz/event-scout.git
@@ -40,7 +40,7 @@ REACT_APP_API_URL=http://localhost:8000
 ```
 Alternatively, simply copy and paste the `.env.example` file into your `.env`
 
-## To run the Application: 
+### 4. Start App
 Run the backend and frontend at the same time
 
 To start the backend server
@@ -92,7 +92,7 @@ To run the backend unit tests:
 
 ### End-to-End (E2E) Tests
 
-The project uses Playwright for end-to-end testing. The E2E tests require both the backend and frontend servers to be running.
+The project uses Playwright for end-to-end testing.
 
 To run the E2E tests:
 
@@ -112,9 +112,9 @@ This command will:
 - Wait for both servers to be ready
 - Run the Playwright tests
 
-**Note:** Make sure you are not already running the backend server or frontend before running the tests. They will not work as the ports the tests use will be taken.
+**Note:** Make sure you are not already running the backend or frontend server before running the tests. They will not work as the ports the tests use will be taken.
 
-## Diagrams:
+## Diagrams
 ### System Architecture Diagram
 ![System Architecture](./architecture-diagram.drawio.png)
 
