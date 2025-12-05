@@ -1,5 +1,12 @@
 # Event Scout
-Introducing Event Scout, a social media style event hub where anyone can post, find, RSVP to events near them. Event organizers post event flyers and details, attendees create an account and RSVP to certain events. Each event contains its own “group chat” where attendees can meet online beforehand. Private events can also be created that are only visible to a user's friends.
+Introducing Event Scout, a social media style event hub where anyone can post, find, and RSVP to events near them. Event organizers post event flyers and details, attendees create an account and RSVP to certain events. Each event contains its own "group chat" where attendees can meet online beforehand. Private events can also be created that are only visible to a user's friends.
+
+## Features
+- **Event Creation** - Create public or private events with details like date, location, and description
+- **RSVP System** - Users can RSVP to events they want to attend
+- **Real-time Chat** - Each event has a group chat for attendees to communicate
+- **Friends System** - Add friends and share private events
+- **Email Reminders** - Automatic email reminders sent daily at 9 AM for events happening within 24 hours
 
 ## Running Locally
 ### 1. Clone the repo: 
@@ -16,14 +23,11 @@ cd backend
 npm install
 ```
 
-Create a `.env` file in the backend directory:
+Copy the example environment file:
 ```bash
-PORT=8000
-NODE_ENV=development
-JWT_SECRET=your-secret-key-change-in-production
-CLIENT_URL=http://localhost:3000
+cp .env.example .env
 ```
-Alternatively, simply copy and paste the `.env.example` file into your `.env`
+This includes all required configuration including email settings for the reminder feature.
 
 ### 3. Frontend Setup
 
@@ -34,11 +38,10 @@ cd ../frontend
 npm install
 ```
 
-Create a `.env` file in the frontend directory:
+Copy the example environment file:
 ```bash
-REACT_APP_API_URL=http://localhost:8000
+cp .env.example .env
 ```
-Alternatively, simply copy and paste the `.env.example` file into your `.env`
 
 ### 4. Start App
 Run the backend and frontend at the same time
@@ -54,7 +57,7 @@ To start the backend server
    npm run dev
    ```
 4. The backend server will start on **port 8000**
-5. You should see: `Server is running on port 8000`
+5. You should see: `Server is running on port 8000` and `Event reminder job scheduled`
 
 To start the frontend server
 1. Open a new terminal window (keep the backend running)
@@ -74,6 +77,15 @@ Once both servers are running:
 2. Navigate to: http://localhost:3000
 3. You should see the Register/Login page
 4. Select Register, enter the corresponding information, and press "Sign Up" to enter the homepage
+
+## Email Reminders
+
+The app automatically sends email reminders to users who have RSVP'd to events happening within the next 24 hours. Reminders are sent daily at 9 AM.
+
+The `.env.example` file includes pre-configured credentials for [Ethereal Email](https://ethereal.email), a fake SMTP service for testing. To view sent reminder emails:
+1. Go to https://ethereal.email
+2. Log in with the credentials from `.env.example`
+3. Check the inbox to see the reminder emails
 
 ## Running Tests
 
