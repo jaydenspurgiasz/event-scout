@@ -9,6 +9,7 @@ import apiRoutes from "./routes/apiRoutes.js";
 import { initializeDatabase } from "./models/db.js";
 import cookieParser from "cookie-parser";
 import { saveMessage, getMessages } from "./controllers/messageController.js";
+import { startReminderJob } from "./services/reminderJob.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -72,6 +73,7 @@ io.on("connection", (socket) => {
 const startServer = async () => {
   try {
     await initializeDatabase();
+    startReminderJob();
     httpServer.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });

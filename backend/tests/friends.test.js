@@ -13,6 +13,13 @@ const { sendFriendRequest, acceptFriendRequest, rejectFriendRequest, getFriends,
 
 beforeEach(async () => {
   await initializeDatabase();
+  // Clear friends table to avoid errors with uniqueness between tests
+  await new Promise((resolve, reject) => {
+    db.run("DELETE FROM friends", (err) => err ? reject(err) : resolve());
+  });
+  await new Promise((resolve, reject) => {
+    db.run("DELETE FROM users", (err) => err ? reject(err) : resolve());
+  });
 });
 
 afterAll((done) => {
