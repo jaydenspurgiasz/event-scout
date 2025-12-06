@@ -128,10 +128,26 @@ This command will:
 **Note:** Make sure you are not already running the backend or frontend server before running the tests. They will not work as the ports the tests use will be taken.
 
 ## Diagrams
+### Entity Relationship Diagram
+![Entity Relationship](./er-diagram.png)
+
+This diagram shows the main entities in our database and how they are related to each other. Each box represents a table in our SQLite database (USER, EVENT, FRIENDSHIP, PARTICIPANT, MESSAGE).
+
+A USER can create many EVENTs (the user_id in EVENT points back to the creator), and users can also become friends with each other through the FRIENDSHIP table, which stores pairs of users along with the friendship status. The PARTICIPANT table links USERS and EVENTs to represent RSVPs, modeling the many-to-many relationship between users and events. Finally, the MESSAGE table connects USERS and EVENTs to store the chat messages for each event. Overall, this diagram captures the core data needed for Event Scout’s features: accounts, events, friendships, RSVPs, and chats.
+
+Note on the FRIENDSHIP table: In the actual SQLite schema the PK is enforced with a UNIQUE(user_id, friend_id) constraint, which is why the ER diagram is missing a primary key for that table.
+
+### UI State Diagram
+![UI State Diagram](state-diagram-ui.drawio.png)
+
+This diagram shows the different states of the UI interface and how the states change as you navigate through the UI.
+
+The website starts at the choice page where the user can choose either to login or to register. In both paths there is a validation process before converging on the the home/eventlist page. From this page the user can go to either the create event page to create a new event assuming the user has input all required fields or the profile page. From the profile page the user can go the friends page where they can traverse to either the friend requests or friend search page. All pages have a back button to take it back to the previous state except for the home page and the first page (choice).
+
 ### System Architecture Diagram
 ![System Architecture](./architecture-diagram.drawio.png)
 
-This diagram shows the system architecture and how different components interact with each other
+This diagram shows the system architecture and how different components interact with each other.
 
 Frontend (React): 
 Sends HTTP requests to the Express server for data operations and maintains WebSocket connections for real-time chats.
@@ -149,10 +165,3 @@ Users (account information), events (event details), RSVPs (event attendance), a
 
 Communication: 
 HTTP/Rest APIs handle CRUD operations with JWT auth. 
-
-### UI State Diagram
-![UI State Diagram](state-diagram-ui.drawio.png)
-
-This diagram shows the different states of the UI interface and how the states change as you navigate through the UI.
-
-The website starts at the choice page where the user can choose either to login or to register. In both paths there is a validation process before converging on the the home/eventlist page. From this page the user can go to either the create event page to create a new event assuming the user has input all required fields or the profile page. From the profile page the user can go the friends page where they can traverse to either the friend requests or friend search page. All pages have a back button to take it back to the previous state except for the home page and the first page (choice).
